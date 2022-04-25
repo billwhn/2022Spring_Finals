@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import math
+import random
 
 
 @dataclass
@@ -21,7 +21,8 @@ class Hero:
     bonus_strength: int
     bonus_agility: int
     bonus_damage_without_main_attribute: int
-    evasion_possibility: dict  # there are more than 1 skills can grant hero ability to evade
+    # there are more than 1 skill can grant evasion ability
+    evasion_list: dict  # key: skill name, value: int, evasion possibility
 
     bonus_attack_speed_without_agility: int
     bonus_armor_without_agility: int
@@ -32,6 +33,8 @@ class Hero:
     attack_attachment: dict
     other_positive_effect: dict
     other_negative_effect: dict
+    # there are more than 1 skill can grant critical attack ability
+    critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
 
     hero_level: int
 
@@ -100,7 +103,7 @@ class Hero:
         if not self.check_able_to_learn_skill_book("Evasion"):
             return None
         _, new_level = self.learn_skill_book("Evasion", qty_of_books)
-        self.evasion_possibility["Evasion"] = 30 + 5 * new_level
+        self.evasion_list["Evasion"] = 30 + 5 * new_level
 
     def learn_skill_corruption(self, qty_of_books: int):
         """
@@ -282,9 +285,12 @@ class Hero:
         self.status["Regeneration"] = self.basic_regeneration + self.status["Strength"] / 10
         if "Heart" in self.other_positive_effect.keys():
             self.status["Regeneration"] += self.other_positive_effect["Heart"] * 0.016 * self.status["Max HP"]
-        self.status["Physical Resistance"] = 1 - (0.052 * self.status["Armor"]) / [
-                                               0.9 + 0.048 * abs(self.status["Armor"])]
+        self.status["Physical Resistance"] = 1 - (0.052 * self.status["Armor"]) / (
+                0.9 + 0.048 * abs(self.status["Armor"]))
         self.status["Magic Resistance"] = 0.25
+        self.status["MKB Pierce"] = 0
+        if "MKB" in self.attack_attachment.keys():
+            self.status["MKB Pierce"] = pierce_possibility_mkb(self.attack_attachment["MKB"])
 
     def taken_physical_damage(self, physical_damage_amount: float) -> int:
         """
@@ -320,3 +326,69 @@ class Hero:
         actual_damage = round(true_damage_amount)
         self.status["Current HP"] -= actual_damage
         return actual_damage
+
+
+def attack(attack_hero: Hero, enemy_hero: Hero):
+    attack_damage = attack_hero.status['Damage']
+    # evadable physical damage, evadable magic damage, un-evadable physical damage, un-evadable magic damage
+    # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
+    damage_list = [0, 0, 0, 0, 0, 0]
+    evaded = False
+    pierce = False
+
+    # calculate un-evadable damage first
+    # in our model, only Smash is un-evadable
+    if 'Smash' in attack_hero.skill_list.keys():
+        skill_level = attack_hero.skill_list['Smash']
+        damage_list[3] += 100 * skill_level  # Basic damage
+        damage_list[3] += 0.01 * skill_level * enemy_hero.status["Max HP"]  # decided by enemy max HP
+
+    # calculate if this attack is evaded
+    random_num = random.randint(0, 100)
+    if random_num < attack_hero.attack_attachment["MKB Pierce"] * 100:
+        pierce = True
+        # un-evadable magic damage from MKB
+        damage_list[4] += 70
+
+    if pierce:
+        # MKB pierced, cannot evade
+        pass
+    else:
+        # MKB not triggered, can evade
+        if len(enemy_hero.evasion_list.keys()) != 0:
+            for evasion_skill in enemy_hero.evasion_list:
+                evasion_possibility = enemy_hero.evasion_list[evasion_skill]
+                if random.randint(0, 100) < evasion_possibility:
+                    # evade successfully
+                    evaded = True
+                    break
+    if evaded:
+        return damage_list
+
+    highest_critical_rate = 100
+
+    # attack might be critical
+    # each critical is independent, the final damage only counts the highest critical rate
+    if len(attack_hero.critical_list.keys()) != 0:
+        for critical_skill in attack_hero.critical_list:
+            if random.randint(0, 100) <= attack_hero.critical_list[critical_skill][0]:
+                highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
+
+    damage_list[0] += highest_critical_rate / 100 * attack_damage
+
+    # TODO
+    # Other attack attachments
+
+
+def pierce_possibility_mkb(amount_of_mkb: int):
+    """
+    If MKB is equipped, each MKB will grant 80% chance to pierce through evasion and deal 70 magic damage
+    Equipping 2 MKB, possibility of piercing is: 80% + (1-80%)*80%
+
+    :param amount_of_mkb:
+    :return: the possibility of triggering mkb
+    """
+    if amount_of_mkb == 1:
+        return 0.8
+    else:
+        return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
