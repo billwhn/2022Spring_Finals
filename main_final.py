@@ -336,12 +336,14 @@ class Hero:
         """
         regenerate_hp = self.status["Regeneration"] * time_second
 
-        if "Curse" in self.other_negative_effect.keys():
+        if "Curse of Death" in self.other_negative_effect.keys():
             # other_negative_effect["Curse"] : level of curse
             # other_negative_effect["Curse Reg Reduction"] : how many percent regenerate reduced
             # other_negative_effect["Curse Damage"] : curse damage per second
             regenerate_hp = self.other_negative_effect["Curse Reg Reduction"] / 100 * regenerate_hp
             regenerate_hp -= self.other_negative_effect["Curse Damage"] * time_second
+
+        regenerate_hp = round(regenerate_hp)
 
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
 
@@ -442,6 +444,13 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
 
 
 def duel(hero_1: Hero, hero_2: Hero):
+    # before duel start, calculate various long-lasting effects
+    # for example, Corruption (reduce armor)
+    corruption_status(hero_1, hero_2)
+    corruption_status(hero_2, hero_1)
+    curse_status(hero_1, hero_2)
+    curse_status(hero_2, hero_1)
+
     hero_1_attack_time_axis = hero_1.status["Attack Interval"]
     hero_2_attack_time_axis = hero_1.status["Attack Interval"]
     last_hit_time_axis = 0
@@ -491,3 +500,30 @@ def duel(hero_1: Hero, hero_2: Hero):
             hero_2_attacked = False
 
     return hero_1, hero_2
+
+
+def corruption_status(owner_hero: Hero, affected_hero: Hero) -> None:
+    # only one Corruption will take effect
+    # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
+    if "Corruption" in owner_hero.skill_list.keys():
+        if "Corruption" not in affected_hero.other_negative_effect.keys()\
+                or affected_hero.other_negative_effect["Corruption"] < owner_hero.skill_list["Corruption"]:
+            affected_hero.other_negative_effect["Corruption"] = owner_hero.skill_list["Corruption"]
+            affected_hero.other_negative_effect["Reduced Armor"] = owner_hero.other_positive_effect[
+                "Reduce Enemy Armor"]
+            affected_hero.status["Armor"] -= affected_hero.other_negative_effect["Reduced Armor"]
+            affected_hero.status["Physical Resistance"] = 1 - (0.052 * affected_hero.status["Armor"]) / (
+                    0.9 + 0.048 * abs(affected_hero.status["Armor"]))
+
+
+def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
+    # only one Curse of Death will take effect
+    # affected by two enemy heroes both learned Curse of Death, only the highest level corruption takes effect
+    if "Curse of Death" in owner_hero.skill_list.keys():
+        if "Curse of Death" not in affected_hero.other_negative_effect.keys() \
+                or affected_hero.other_negative_effect["Curse of Death"] < owner_hero.skill_list["Curse of Death"]:
+            affected_hero.other_negative_effect["Curse of Death"] = owner_hero.skill_list["Curse of Death"]
+            affected_hero.other_negative_effect["Curse Reg Reduction"] = owner_hero.other_positive_effect[
+                "Curse Reg Reduction"]
+            affected_hero.other_negative_effect["Curse Damage"] = owner_hero.other_positive_effect[
+                "Curse Damage"]
