@@ -288,9 +288,9 @@ class Hero:
         self.status["Physical Resistance"] = 1 - (0.052 * self.status["Armor"]) / (
                 0.9 + 0.048 * abs(self.status["Armor"]))
         self.status["Magic Resistance"] = 0.25
-        self.status["MKB Pierce"] = 0
+        self.status["Pierce"] = {}
         if "MKB" in self.attack_attachment.keys():
-            self.status["MKB Pierce"] = pierce_possibility_mkb(self.attack_attachment["MKB"])
+            self.status["Pierce"]["MKB"] = pierce_possibility_mkb(self.attack_attachment["MKB"]) * 100
 
     def taken_physical_damage(self, physical_damage_amount: float) -> int:
         """
@@ -327,42 +327,70 @@ class Hero:
         self.status["Current HP"] -= actual_damage
         return actual_damage
 
+    def regenerate_and_curse(self, time_second: float) -> None:
+        """
+        Calculate hit point regenerate during time period.
 
-def attack(attack_hero: Hero, enemy_hero: Hero):
+        :param time_second: how mang seconds have passed
+        :return: None
+        """
+        regenerate_hp = self.status["Regeneration"] * time_second
+
+        if "Curse" in self.other_negative_effect.keys():
+            # other_negative_effect["Curse"] : level of curse
+            # other_negative_effect["Curse Reg Reduction"] : how many percent regenerate reduced
+            # other_negative_effect["Curse Damage"] : curse damage per second
+            regenerate_hp = self.other_negative_effect["Curse Reg Reduction"] / 100 * regenerate_hp
+            regenerate_hp -= self.other_negative_effect["Curse Damage"] * time_second
+
+        self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
+
+
+def attack(attack_hero: Hero, defend_hero: Hero):
     attack_damage = attack_hero.status['Damage']
-    # evadable physical damage, evadable magic damage, un-evadable physical damage, un-evadable magic damage
+    # evadable physical damage, evadable magic damage, evadable true damage
+    # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
     # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
-    damage_list = [0, 0, 0, 0, 0, 0]
+    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     evaded = False
     pierce = False
+
+    if attack_hero.status["Current HP"] <= 0 or defend_hero.status["Current HP"] <= 0:
+        # one side has already been killed before attack
+        # for example, die because of the damage from Curse of Death
+        return damage_list
 
     # calculate un-evadable damage first
     # in our model, only Smash is un-evadable
     if 'Smash' in attack_hero.skill_list.keys():
         skill_level = attack_hero.skill_list['Smash']
         damage_list[3] += 100 * skill_level  # Basic damage
-        damage_list[3] += 0.01 * skill_level * enemy_hero.status["Max HP"]  # decided by enemy max HP
+        damage_list[3] += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
 
     # calculate if this attack is evaded
     random_num = random.randint(0, 100)
-    if random_num < attack_hero.attack_attachment["MKB Pierce"] * 100:
-        pierce = True
-        # un-evadable magic damage from MKB
-        damage_list[4] += 70
+
+    for key in attack_hero.status["Pierce"].keys():
+        if random_num < attack_hero.attack_attachment["Pierce"][key]:
+            pierce = True
+            if key == "MKB":
+                # un-evadable magic damage from MKB
+                damage_list[4] += 70
 
     if pierce:
         # MKB pierced, cannot evade
         pass
     else:
         # MKB not triggered, can evade
-        if len(enemy_hero.evasion_list.keys()) != 0:
-            for evasion_skill in enemy_hero.evasion_list:
-                evasion_possibility = enemy_hero.evasion_list[evasion_skill]
+        if len(defend_hero.evasion_list.keys()) != 0:
+            for evasion_skill in defend_hero.evasion_list:
+                evasion_possibility = defend_hero.evasion_list[evasion_skill]
                 if random.randint(0, 100) < evasion_possibility:
                     # evade successfully
                     evaded = True
                     break
     if evaded:
+        damage_calculation(attack_hero, defend_hero, damage_list)
         return damage_list
 
     highest_critical_rate = 100
@@ -380,7 +408,26 @@ def attack(attack_hero: Hero, enemy_hero: Hero):
     # Other attack attachments
 
 
-def pierce_possibility_mkb(amount_of_mkb: int):
+def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list) -> None:
+    """
+
+    :param attack_hero:
+    :param defend_hero:
+    :param damage_list:
+        # evadable physical damage, evadable magic damage, evadable true damage
+        # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
+        # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
+    :return: None
+    """
+    defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
+    defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
+    defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
+    attack_hero.taken_physical_damage(damage_list[6])
+    attack_hero.taken_magical_damage(damage_list[7])
+    attack_hero.taken_true_damage(damage_list[8])
+
+
+def pierce_possibility_mkb(amount_of_mkb: int) -> float:
     """
     If MKB is equipped, each MKB will grant 80% chance to pierce through evasion and deal 70 magic damage
     Equipping 2 MKB, possibility of piercing is: 80% + (1-80%)*80%
@@ -392,3 +439,39 @@ def pierce_possibility_mkb(amount_of_mkb: int):
         return 0.8
     else:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
+
+
+def duel(hero_1: Hero, hero_2: Hero):
+    hero_1_attack_time_axis = hero_1.status["Attack Interval"]
+    hero_2_attack_time_axis = hero_1.status["Attack Interval"]
+    last_hit_time_axis = 0
+    hero_1_attacked = False
+    hero_2_attacked = False
+
+    while True:
+        if hero_1_attack_time_axis < hero_2_attack_time_axis:
+            attack(hero_1, hero_2)
+            hero_1_attacked = True
+        elif hero_1_attack_time_axis > hero_2_attack_time_axis:
+            attack(hero_2, hero_1)
+            hero_2_attacked = True
+        else:
+            # randomly decide sequence of attack
+            if random.randint(0, 1) == 0:
+                attack(hero_1, hero_2)
+                hero_1_attacked = True
+            else:
+                attack(hero_2, hero_1)
+                hero_2_attacked = True
+
+        if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
+            break
+
+        if not hero_1_attacked:
+            hero_1_attack_time_axis += hero_1.status["Attack Interval"]
+            hero_1_attacked = False
+        if not hero_2_attacked:
+            hero_2_attack_time_axis += hero_2.status["Attack Interval"]
+            hero_2_attacked = False
+
+    return hero_1, hero_2
