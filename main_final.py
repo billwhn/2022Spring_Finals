@@ -450,13 +450,29 @@ def duel(hero_1: Hero, hero_2: Hero):
 
     while True:
         if hero_1_attack_time_axis < hero_2_attack_time_axis:
+            # before attack, calculate regeneration and curse damage
+            time = hero_1_attack_time_axis - last_hit_time_axis
+            hero_1.regenerate_and_curse(time)
+            hero_2.regenerate_and_curse(time)
+            last_hit_time_axis = hero_1_attack_time_axis
+
+            # attack
             attack(hero_1, hero_2)
             hero_1_attacked = True
+
         elif hero_1_attack_time_axis > hero_2_attack_time_axis:
+            time = hero_2_attack_time_axis - last_hit_time_axis
+            hero_1.regenerate_and_curse(time)
+            hero_2.regenerate_and_curse(time)
+            last_hit_time_axis = hero_2_attack_time_axis
             attack(hero_2, hero_1)
             hero_2_attacked = True
         else:
-            # randomly decide sequence of attack
+            # attack at same time, randomly decide sequence of attack
+            time = hero_1_attack_time_axis - last_hit_time_axis
+            hero_1.regenerate_and_curse(time)
+            hero_2.regenerate_and_curse(time)
+            last_hit_time_axis = hero_2_attack_time_axis
             if random.randint(0, 1) == 0:
                 attack(hero_1, hero_2)
                 hero_1_attacked = True
