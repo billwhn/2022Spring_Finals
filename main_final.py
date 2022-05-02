@@ -426,12 +426,28 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list) -> Non
         # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
     :return: None
     """
-    defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
+    if "Fire" in attack_hero.skill_list.keys():
+        calculate_physical_damage_under_skill_fire(attack_hero, defend_hero, damage_list[0] + damage_list[3])
+    else:
+        defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
     defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
     defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
     attack_hero.taken_physical_damage(damage_list[6])
     attack_hero.taken_magical_damage(damage_list[7])
     attack_hero.taken_true_damage(damage_list[8])
+
+
+def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero, physical_damage_amount: float) -> int:
+    if defend_hero.status["Armor"] > 0:
+        actual_armor = defend_hero.status["Armor"] * (100 - attack_hero.other_positive_effect["Ignore Armor"]) / 100
+    else:
+        actual_armor = defend_hero.status["Armor"]
+    actual_physical_resistance = 1 - (0.052 * actual_armor) / (0.9 + 0.048 * abs(actual_armor))
+
+    actual_damage = physical_damage_amount * actual_physical_resistance
+    actual_damage = round(actual_damage)
+    defend_hero.status["Current HP"] -= actual_damage
+    return actual_damage
 
 
 def pierce_possibility_mkb(amount_of_mkb: int) -> float:
