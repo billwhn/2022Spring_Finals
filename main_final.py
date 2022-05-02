@@ -133,6 +133,7 @@ class Hero:
             self.bonus_armor_without_agility += 2 * new_level
 
     def learn_skill_thorn_armor(self, qty_of_books: int):
+        ###反伤
         """
         When a hero consumes Skill Book -Thorn Armor-.
 
@@ -146,6 +147,7 @@ class Hero:
         self.other_positive_effect["Physical Damage Reflection"] = 5 * new_level
 
     def learn_curse_of_death(self, qty_of_books: int):
+        ###吸血回血减少
         """
         When a hero consumes Skill Book -Curse of Death-.
 
@@ -166,6 +168,7 @@ class Hero:
         self.other_positive_effect["Curse Reg Reduction"] = 20 + 5 * new_level
 
     def learn_fire(self, qty_of_books: int):
+        ###
         """
         When a hero consumes Skill Book -Fire!-.
 
@@ -178,6 +181,7 @@ class Hero:
         self.other_positive_effect["Ignore Armor"] = 10 + 5 * new_level
 
     def learn_crushing(self, qty_of_books: int):
+        ###
         """
         When a hero consumes Skill Book -Crushing-.
 
@@ -205,6 +209,7 @@ class Hero:
             self.bonus_damage_without_main_attribute += 25 * (new_level - original_level)
 
     def learn_life_steal(self, qty_of_books: int):
+        ###
         """
         When a hero consumes Skill Book -Life Steal-.
 
@@ -452,7 +457,7 @@ def duel(hero_1: Hero, hero_2: Hero):
     curse_status(hero_2, hero_1)
 
     hero_1_attack_time_axis = hero_1.status["Attack Interval"]
-    hero_2_attack_time_axis = hero_1.status["Attack Interval"]
+    hero_2_attack_time_axis = hero_2.status["Attack Interval"]
     last_hit_time_axis = 0
     hero_1_attacked = False
     hero_2_attacked = False
@@ -492,10 +497,10 @@ def duel(hero_1: Hero, hero_2: Hero):
         if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
             break
 
-        if not hero_1_attacked:
+        if hero_1_attacked:
             hero_1_attack_time_axis += hero_1.status["Attack Interval"]
             hero_1_attacked = False
-        if not hero_2_attacked:
+        if hero_2_attacked:
             hero_2_attack_time_axis += hero_2.status["Attack Interval"]
             hero_2_attacked = False
 
