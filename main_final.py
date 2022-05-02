@@ -40,6 +40,15 @@ class Hero:
 
     status: dict
 
+    def set_hero_level(self, hero_level: int) -> None:
+        """
+        Setting the level of the Hero object.
+
+        :param hero_level: hero's level
+        :return: None
+        """
+        self.hero_level = hero_level
+
     def learn_skill_book(self, skill_name: str, qty_of_books: int):
         """
         This function is a common function when a skill book is consumed.
@@ -299,7 +308,7 @@ class Hero:
 
     def taken_physical_damage(self, physical_damage_amount: float) -> int:
         """
-
+        The hero takes physical damage, need to consider effect of Armor.
 
         :param physical_damage_amount: Damage Amount before calculating Armor
         :return: Actual damage caused
@@ -311,7 +320,7 @@ class Hero:
 
     def taken_magical_damage(self, magical_damage_amount: float) -> int:
         """
-
+        The hero takes magic damage, need to consider effect of Magic Resistance.
 
         :param magical_damage_amount: Damage Amount before calculating Armor
         :return: Actual damage caused
@@ -323,7 +332,7 @@ class Hero:
 
     def taken_true_damage(self, true_damage_amount: float) -> int:
         """
-
+        The hero takes true damage, the damage will not be reduced or increased.
 
         :param true_damage_amount: Damage Amount
         :return: Actual damage caused
@@ -353,7 +362,14 @@ class Hero:
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
 
 
-def attack(attack_hero: Hero, defend_hero: Hero):
+def attack(attack_hero: Hero, defend_hero: Hero) -> list:
+    """
+    One hero attacks another hero once.
+
+    :param attack_hero: the hero who attacks
+    :param defend_hero: the hero who defends the attack
+    :return: damage_list: the list of the attack result
+    """
     attack_damage = attack_hero.status['Damage']
     # evadable physical damage, evadable magic damage, evadable true damage
     # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
@@ -417,10 +433,11 @@ def attack(attack_hero: Hero, defend_hero: Hero):
 
 def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list) -> None:
     """
+    Calculate various damage caused by an attack action.
 
-    :param attack_hero:
-    :param defend_hero:
-    :param damage_list:
+    :param attack_hero: the hero who attacks
+    :param defend_hero: the hero who defends
+    :param damage_list: the damage caused an attack action, before
         # evadable physical damage, evadable magic damage, evadable true damage
         # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
         # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
@@ -437,7 +454,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list) -> Non
     attack_hero.taken_true_damage(damage_list[8])
 
 
-def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero, physical_damage_amount: float) -> int:
+def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
+                                               physical_damage_amount: float) -> int:
     if defend_hero.status["Armor"] > 0:
         actual_armor = defend_hero.status["Armor"] * (100 - attack_hero.other_positive_effect["Ignore Armor"]) / 100
     else:
@@ -527,7 +545,7 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero) -> None:
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
     if "Corruption" in owner_hero.skill_list.keys():
-        if "Corruption" not in affected_hero.other_negative_effect.keys()\
+        if "Corruption" not in affected_hero.other_negative_effect.keys() \
                 or affected_hero.other_negative_effect["Corruption"] < owner_hero.skill_list["Corruption"]:
             affected_hero.other_negative_effect["Corruption"] = owner_hero.skill_list["Corruption"]
             affected_hero.other_negative_effect["Reduced Armor"] = owner_hero.other_positive_effect[
@@ -548,3 +566,44 @@ def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
                 "Curse Reg Reduction"]
             affected_hero.other_negative_effect["Curse Damage"] = owner_hero.other_positive_effect[
                 "Curse Damage"]
+
+
+@dataclass
+class HeroMonkeyKing(Hero):
+    def __init__(self):
+        self.base_attack_time = 1.7
+        self.basic_attack_speed = 100
+        self.basic_damage = 31
+        self.basic_armor = 2
+        self.basic_hit_point = 164
+        self.basic_regeneration = 1
+        self.main_attribute = "Agility"  # Intelligence or Strength or Agility
+
+        self.basic_strength = 15.2
+        self.basic_agility = 18.3
+        self.strength_level_growth = 2.8
+        self.agility_level_growth = 3.7
+
+        self.bonus_strength = 0
+        self.bonus_agility = 0
+        self.bonus_damage_without_main_attribute = 0
+        # there are more than 1 skill can grant evasion ability
+        self.evasion_list = {}  # key: skill name, value: int, evasion possibility
+
+        self.bonus_attack_speed_without_agility = 0
+        self.bonus_armor_without_agility = 0
+        self.bonus_regeneration_without_strength = 0
+        self.bonus_hit_point_without_strength = 0
+
+        self.skill_list = {}
+        self.attack_attachment = {}
+        self.other_positive_effect = {}
+        self.other_negative_effect = {}
+        # there are more than 1 skill can grant critical attack ability
+        self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
+        self.hero_level = 0
+        self.status = {}
+
+
+if __name__ == "__main__":
+    pass
