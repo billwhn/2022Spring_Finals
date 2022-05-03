@@ -502,11 +502,11 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     evaded = False
     pierce = False
 
-    un_evadable_magic_damage = 0
     un_evadable_physical_damage = 0
+    un_evadable_magic_damage = 0
     un_evadable_true_damage = 0
-    evadable_magic_damage = 0
     evadable_physical_damage = 0
+    evadable_magic_damage = 0
     evadable_true_damage = 0
     attacker_take_physical_damage = 0
     attacker_take_magic_damage = 0
@@ -563,16 +563,15 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             if random.randint(1, 100) <= attack_hero.critical_list[critical_skill][0]:
                 highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
 
-    normal_attack_damage = highest_critical_rate / 100 * attack_damage
-    damage_list[0] += normal_attack_damage
-    damage_list[10] = normal_attack_damage
+    normal_attack_damage += highest_critical_rate / 100 * attack_damage
+    evadable_physical_damage += normal_attack_damage
 
     if 'Crushing' in attack_hero.skill_list.keys():
         p = random.randint(1, 100)
         if p <= 20:
             skill_level = attack_hero.skill_list['Crushing']
-            damage_list[2] += 50 + 50 * skill_level  # Basic damage
-            damage_list[2] += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
+            evadable_true_damage += 50 + 50 * skill_level  # Basic damage
+            evadable_true_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
 
     # TODO
     # Other attack attachments
@@ -582,14 +581,23 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
         feast_life_steal = (0.01 + 0.006 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
         feast_extra_damage = (0.004 + 0.002 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
         life_steal_amount += feast_life_steal
-        damage_list[0] += feast_extra_damage
+        evadable_physical_damage += feast_extra_damage
 
     if "Life Steal" in attack_hero.skill_list.keys():
         # Life Steal only consider actual damage from normal attack (affected by defend hero's physical resistance)
         if random.randint(1, 100) <= 30:
             life_steal_rate += attack_hero.skill_list["Life Steal"] * 5 + 20
 
+    damage_list[0] = evadable_physical_damage
+    damage_list[1] = evadable_magic_damage
+    damage_list[2] = evadable_true_damage
+
+    damage_list[6] = attacker_take_physical_damage
+    damage_list[7] = attacker_take_magic_damage
+    damage_list[8] = attacker_take_true_damage
+
     damage_list[9] = life_steal_amount
+    damage_list[10] = normal_attack_damage
     attack_result = damage_calculation(attack_hero, defend_hero, damage_list, life_steal_rate, show_log_or_not)
 
     return attack_result
@@ -685,6 +693,14 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
 
 
+def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero):
+    if 1 > 0:
+        life_steal_rate = 0  # defend_hero.main_skill_list[""]
+        defend_hero.life_steal_rate += life_steal_rate
+        attack(defend_hero, attack_hero, True)
+        defend_hero.life_steal_rate -= life_steal_rate
+
+
 def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
@@ -713,6 +729,7 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
 
             # attack
             attack(hero_1, hero_2, show_log_or_not)
+
             hero_1_attacked = True
 
         elif hero_1_attack_time_axis > hero_2_attack_time_axis:
