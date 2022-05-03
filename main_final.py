@@ -405,8 +405,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # evadable physical damage, evadable magic damage, evadable true damage
     # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
     # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
-    # life-steal
-    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # life-steal, attack_damage_without_attachments
+    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     evaded = False
     pierce = False
 
@@ -466,12 +466,20 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             if random.randint(0, 100) <= attack_hero.critical_list[critical_skill][0]:
                 highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
 
-    damage_list[0] += highest_critical_rate / 100 * attack_damage
+    normal_attack_damage = highest_critical_rate / 100 * attack_damage
+    damage_list[0] += normal_attack_damage
+    damage_list[9] = normal_attack_damage
+
+    if "Curse of Death" in defend_hero.skill_list.key():
+        damage_list[10] = damage_list[10] + damage_list[0] * (
+                100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
 
     # TODO
     # Other attack attachments
 
-    damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
+    damage_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
+    damage_list[9] += damage_result[2]
+    return damage_list
 
 
 def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_log_or_not=False) -> list:
@@ -489,17 +497,30 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
     """
     attacker_taken_damage = 0
     defender_taken_damage = 0
+    life_steal_amount = 0
     if "Fire" in attack_hero.skill_list.keys():
-        defender_taken_damage += calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
-                                                                            damage_list[0] + damage_list[3])
+        damage_amount, actual_physical_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
+                                                                                               damage_list[0] +
+                                                                                               damage_list[3])
+        defender_taken_damage += damage_amount
     else:
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
+        actual_physical_resistance = defend_hero.status["Physical Resistance"]
+
+    if "Life Steal" in attack_hero.skill_list.keys():
+        if random.randint(1, 100) <= 30:
+            actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
+            life_steal_amount += actual_normal_attack_damage * (attack_hero.skill_list["Life Steal"] * 5 + 20) / 100
+            life_steal_amount = round(life_steal_amount)
+
     defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
     defender_taken_damage += defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
     attacker_taken_damage += attack_hero.taken_physical_damage(damage_list[6])
     attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
-    damage_result = [attacker_taken_damage, defender_taken_damage]
+
+    attack_hero.status["Current HP"] += life_steal_amount
+    damage_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
     if show_log_or_not:
         show_attack_log(attack_hero, defend_hero, damage_result)
     return damage_result
@@ -523,7 +544,8 @@ def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: H
     actual_damage = physical_damage_amount * actual_physical_resistance
     actual_damage = round(actual_damage)
     defend_hero.status["Current HP"] -= actual_damage
-    return actual_damage
+
+    return actual_damage, actual_physical_resistance
 
 
 def pierce_possibility_mkb(amount_of_mkb: int) -> float:
