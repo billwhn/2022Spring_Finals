@@ -147,7 +147,6 @@ class Hero:
             self.bonus_armor_without_agility += 2 * new_level
 
     def learn_skill_thorn_armor(self, qty_of_books: int):
-        # ##反伤
         """
         When a hero consumes Skill Book -Thorn Armor-.
 
@@ -161,7 +160,6 @@ class Hero:
         self.other_positive_effect["Physical Damage Reflection"] = 5 * new_level
 
     def learn_curse_of_death(self, qty_of_books: int):
-        # ##吸血回血减少
         """
         When a hero consumes Skill Book -Curse of Death-.
 
@@ -182,7 +180,6 @@ class Hero:
         self.other_positive_effect["Curse Reg Reduction"] = 20 + 5 * new_level
 
     def learn_fire(self, qty_of_books: int):
-        ###
         """
         When a hero consumes Skill Book -Fire!-.
 
@@ -195,7 +192,6 @@ class Hero:
         self.other_positive_effect["Ignore Armor"] = 10 + 5 * new_level
 
     def learn_crushing(self, qty_of_books: int):
-        ###
         """
         When a hero consumes Skill Book -Crushing-.
 
@@ -223,7 +219,6 @@ class Hero:
             self.bonus_damage_without_main_attribute += 25 * (new_level - original_level)
 
     def learn_life_steal(self, qty_of_books: int):
-        ###
         """
         When a hero consumes Skill Book -Life Steal-.
 
@@ -380,7 +375,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # evadable physical damage, evadable magic damage, evadable true damage
     # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
     # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
-    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # life-steal
+    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     evaded = False
     pierce = False
 
@@ -392,9 +388,18 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # calculate un-evadable damage first
     # in our model, only Smash is un-evadable
     if 'Smash' in attack_hero.skill_list.keys():
-        skill_level = attack_hero.skill_list['Smash']
-        damage_list[3] += 100 * skill_level  # Basic damage
-        damage_list[3] += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
+        p = random.randint(1, 100)
+        if p <= 20:
+            skill_level = attack_hero.skill_list['Smash']
+            damage_list[4] += 80 + 20 * skill_level  # Basic damage
+            damage_list[4] += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
+
+    if 'Crushing' in attack_hero.skill_list.keys():
+        p = random.randint(1, 100)
+        if p <= 20:
+            skill_level = attack_hero.skill_list['Crushing']
+            damage_list[2] += 50 + 50 * skill_level  # Basic damage
+            damage_list[2] += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
 
     # calculate if this attack is evaded
     random_num = random.randint(0, 100)
@@ -436,6 +441,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # TODO
     # Other attack attachments
 
+
     damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
 
 
@@ -475,6 +481,7 @@ def show_attack_log(attack_hero, defend_hero, damage_list: list):
                                                                            damage_list[1], damage_list[0]))
     print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, attack_hero.status["Current HP"],
                                                      defend_hero.name, defend_hero.status["Current HP"]))
+
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
@@ -599,7 +606,6 @@ def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
 class HeroMonkeyKing(Hero):
     def __init__(self, hero_level=1, name="Monkey King"):
         self.name = name
-
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
         self.basic_damage = 31
