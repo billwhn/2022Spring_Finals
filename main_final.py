@@ -182,7 +182,7 @@ class Hero:
         self.bonus_armor_without_agility += (new_level - original_level)
         self.other_positive_effect["Physical Damage Reflection"] = 5 * new_level
 
-    def learn_curse_of_death(self, qty_of_books: int):
+    def learn_skill_curse_of_death(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Curse of Death-.
 
@@ -202,7 +202,7 @@ class Hero:
             self.other_positive_effect["Curse Damage"] = 200
         self.other_positive_effect["Curse Reg Reduction"] = 20 + 5 * new_level
 
-    def learn_fire(self, qty_of_books: int):
+    def learn_skill_fire(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Fire!-.
 
@@ -214,7 +214,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Fire!", qty_of_books)
         self.other_positive_effect["Ignore Armor"] = 10 + 5 * new_level
 
-    def learn_crushing(self, qty_of_books: int):
+    def learn_skill_crushing(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Crushing-.
 
@@ -226,7 +226,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Crushing", qty_of_books)
         self.attack_attachment["Crushing"] = new_level
 
-    def learn_damage_bonus(self, qty_of_books: int):
+    def learn_skill_damage_bonus(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Damage Bonus-.
 
@@ -241,7 +241,7 @@ class Hero:
         else:
             self.bonus_damage_without_main_attribute += 25 * (new_level - original_level)
 
-    def learn_life_steal(self, qty_of_books: int):
+    def learn_skill_life_steal(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Life Steal-.
 
@@ -253,7 +253,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Life Steal", qty_of_books)
         self.attack_attachment["Life Steal"] = new_level
 
-    def learn_smash(self, qty_of_books: int):
+    def learn_skill_smash(self, qty_of_books: int):
         """
         When a hero consumes Skill Book -Smash-.
 
@@ -274,6 +274,58 @@ class Hero:
         skill_book_list = [0] * 11
         for i in range(0, amount_of_skill_book):
             skill_book_list[random.randint(0, 10)] += 1
+
+        list_max = [0] * 11
+        count = 0
+        last_count = 0
+        dict_random = {}
+        max_level = -1
+        list_result = [0] * 11
+        while True:
+            if count >= 4:
+                for i in range(0, 11):
+                    if list_max[i] == max_level:
+                        dict_random[i] = max_level
+                    elif list_max[i] > max_level:
+                        list_result[i] = list_max[i]
+                for i in range(0, 4 - last_count):
+                    k = random.choice(list(dict_random.keys()))
+                    list_result[k] = max_level
+                    dict_random.pop(k)
+
+                break
+            last_count = count
+            max_level = max(skill_book_list)
+            if max_level == 0:
+                break
+
+            for i in range(0, 11):
+                if max_level == skill_book_list[i]:
+                    list_max[i] = max_level
+                    skill_book_list[i] = 0
+                    count += 1
+        if list_result[0] > 0:
+            self.learn_skill_attribute_bonus(list_result[0])
+        elif list_result[1] > 0:
+            self.learn_skill_corruption(list_result[1])
+        elif list_result[2] > 0:
+            self.learn_skill_armor_bonus(list_result[2])
+        elif list_result[3] > 0:
+            self.learn_skill_thorn_armor(list_result[3])
+        elif list_result[4] > 0:
+            self.learn_skill_curse_of_death(list_result[4])
+        elif list_result[5] > 0:
+            self.learn_skill_evasion(list_result[5])
+        elif list_result[6] > 0:
+            self.learn_skill_fire(list_result[6])
+        elif list_result[7] > 0:
+            self.learn_skill_smash(list_result[7])
+        elif list_result[8] > 0:
+            self.learn_skill_damage_bonus(list_result[8])
+        elif list_result[9] > 0:
+            self.learn_skill_life_steal(list_result[9])
+        elif list_result[10] > 0:
+            self.learn_skill_crushing(list_result[10])
 
     def equip_monkey_king_bar(self, equip_or_take_off: int) -> None:
         """
