@@ -40,6 +40,7 @@ class Hero:
     main_skill_list: dict
 
     hero_level: int
+    life_steal_rate: int
 
     status: dict
 
@@ -64,6 +65,7 @@ class Hero:
         self.status = {}
         self.main_skill_list = {}
         self.hero_level = 1
+        self.life_steal_rate = 0
 
     def set_name(self, name):
         self.name = name
@@ -469,45 +471,52 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
     # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
     # life-steal, attack_damage_without_attachments
-    damage_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    damage_list = [0] * 11
+
+    life_steal_rate = attack_hero.life_steal_rate
     evaded = False
     pierce = False
+
+    un_evadable_magic_damage = 0
+    un_evadable_physical_damage = 0
+    un_evadable_true_damage = 0
+    evadable_magic_damage = 0
+    evadable_physical_damage = 0
+    evadable_true_damage = 0
+    attacker_take_physical_damage = 0
+    attacker_take_magic_damage = 0
+    attacker_take_true_damage = 0
+    normal_attack_damage = 0
+    life_steal_amount = 0
+
+    attack_result = [0, 0, 0]
 
     if attack_hero.status["Current HP"] <= 0 or defend_hero.status["Current HP"] <= 0:
         # one side has already been killed before attack
         # for example, die because of the damage from Curse of Death
-        return damage_list
+        return attack_result
 
     # calculate un-evadable damage first
     # in our model, only Smash is un-evadable
     if 'Smash' in attack_hero.skill_list.keys():
-        p = random.randint(1, 100)
-        if p <= 20:
+        if random.randint(1, 100) <= 20:
             skill_level = attack_hero.skill_list['Smash']
-            damage_list[4] += 80 + 20 * skill_level  # Basic damage
-            damage_list[4] += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
-
-    if 'Crushing' in attack_hero.skill_list.keys():
-        p = random.randint(1, 100)
-        if p <= 20:
-            skill_level = attack_hero.skill_list['Crushing']
-            damage_list[2] += 50 + 50 * skill_level  # Basic damage
-            damage_list[2] += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
+            un_evadable_physical_damage += 80 + 20 * skill_level  # Basic damage
+            un_evadable_physical_damage += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
 
     # calculate if this attack is evaded
-    random_num = random.randint(0, 100)
-
     for key in attack_hero.status["Pierce"].keys():
-        if random_num < attack_hero.attack_attachment["Pierce"][key]:
+        if random.randint(1, 100) <= attack_hero.attack_attachment["Pierce"][key]:
             pierce = True
             if key == "MKB":
                 # un-evadable magic damage from MKB
-                damage_list[4] += 70
+                un_evadable_magic_damage += 70
 
-    if pierce:
-        # MKB pierced, cannot evade
-        pass
-    else:
+    damage_list[3] = un_evadable_physical_damage
+    damage_list[4] = un_evadable_magic_damage
+    damage_list[5] = un_evadable_true_damage
+
+    if not pierce:
         # MKB not triggered, can evade
         if len(defend_hero.evasion_list.keys()) != 0:
             for evasion_skill in defend_hero.evasion_list:
@@ -517,8 +526,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
                     evaded = True
                     break
     if evaded:
-        damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
-        return damage_list
+        attack_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
+        return attack_result
 
     highest_critical_rate = 100
 
@@ -533,6 +542,13 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     damage_list[0] += normal_attack_damage
     damage_list[10] = normal_attack_damage
 
+    if 'Crushing' in attack_hero.skill_list.keys():
+        p = random.randint(1, 100)
+        if p <= 20:
+            skill_level = attack_hero.skill_list['Crushing']
+            damage_list[2] += 50 + 50 * skill_level  # Basic damage
+            damage_list[2] += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
+
     # TODO
     # Other attack attachments
 
@@ -540,15 +556,22 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
         # Feast cause evadable physical damage
         feast_life_steal = (0.01 + 0.006 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
         feast_extra_damage = (0.004 + 0.002 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
-        damage_list[9] += feast_life_steal
+        life_steal_amount += feast_life_steal
         damage_list[0] += feast_extra_damage
 
-    damage_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
-    damage_list[9] += damage_result[2]
-    return damage_list
+    if "Life Steal" in attack_hero.skill_list.keys():
+        # Life Steal only consider actual damage from normal attack (affected by defend hero's physical resistance)
+        if random.randint(1, 100) <= 30:
+            life_steal_rate += attack_hero.skill_list["Life Steal"] * 5 + 20
+
+    damage_list[9] = life_steal_amount
+    attack_result = damage_calculation(attack_hero, defend_hero, damage_list, life_steal_rate, show_log_or_not)
+
+    return attack_result
 
 
-def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_log_or_not=False) -> list:
+def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
+                       life_steal_rate=0, show_log_or_not=False) -> list:
     """
     Calculate various damage caused by an attack action.
 
@@ -559,6 +582,7 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
         # evadable physical damage, evadable magic damage, evadable true damage
         # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
         # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
+    :param life_steal_rate: this attack's attached life steal rate
     :return: a list of total damage taken by attack_hero and defend_hero
     """
     attacker_taken_damage = 0
@@ -573,34 +597,31 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
         actual_physical_resistance = defend_hero.status["Physical Resistance"]
 
-    if "Life Steal" in attack_hero.skill_list.keys():
-        # Life Steal only consider actual damage from normal attack (affected by defend hero's physical resistance)
-        if random.randint(1, 100) <= 30:
-            actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
-            life_steal_amount += actual_normal_attack_damage * (attack_hero.skill_list["Life Steal"] * 5 + 20) / 100
+    actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
+    life_steal_amount += actual_normal_attack_damage * life_steal_rate / 100
 
     if "Thorn Armor" in defend_hero.skill_list.keys():
         damage_reflection = 0
-        actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
         damage_reflection += actual_normal_attack_damage * (
             defend_hero.other_positive_effect["Physical Damage Reflection"]) / 100
         damage_list[6] += damage_reflection
+
+    # curse will reduce life steal amount
+    if "Curse of Death" in defend_hero.skill_list.keys() and life_steal_amount != 0:
+        life_steal_amount = life_steal_amount * (
+                100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
 
     defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
     defender_taken_damage += defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
     attacker_taken_damage += attack_hero.taken_physical_damage(damage_list[6])
     attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
-
-    # curse will reduce life steal amount
-    if "Curse of Death" in defend_hero.skill_list.keys() and life_steal_amount != 0:
-        life_steal_amount = life_steal_amount * (100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
-
     attack_hero.life_steal_regenerate(life_steal_amount)
-    damage_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
+
+    attack_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
     if show_log_or_not:
-        show_attack_log(attack_hero, defend_hero, damage_result)
-    return damage_result
+        show_attack_log(attack_hero, defend_hero, attack_result)
+    return attack_result
 
 
 def show_attack_log(attack_hero, defend_hero, damage_list: list):
