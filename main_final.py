@@ -42,6 +42,26 @@ class Hero:
 
     status: dict
 
+    def __init__(self):
+        self.bonus_strength = 0
+        self.bonus_agility = 0
+        self.bonus_damage_without_main_attribute = 0
+        # there are more than 1 skill can grant evasion ability
+        self.evasion_list = {}  # key: skill name, value: int, evasion possibility
+
+        self.bonus_attack_speed_without_agility = 0
+        self.bonus_armor_without_agility = 0
+        self.bonus_regeneration_without_strength = 0
+        self.bonus_hit_point_without_strength = 0
+
+        self.skill_list = {}
+        self.attack_attachment = {}
+        self.other_positive_effect = {}
+        self.other_negative_effect = {}
+        # there are more than 1 skill can grant critical attack ability
+        self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
+        self.status = {}
+
     def set_name(self, name):
         self.name = name
 
@@ -242,6 +262,16 @@ class Hero:
         _, new_level = self.learn_skill_book("Smash", qty_of_books)
         self.attack_attachment["Smash"] = new_level
 
+    def get_random_skill_book(self, amount_of_skill_book):
+        """
+
+        :param amount_of_skill_book:
+        :return:
+        """
+        skill_book_list = [0] * 11
+        for i in range(0, amount_of_skill_book):
+            skill_book_list[random.randint(0, 10)] += 1
+
     def equip_monkey_king_bar(self, equip_or_take_off: int) -> None:
         """
         When hero equips MKB
@@ -441,7 +471,6 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # TODO
     # Other attack attachments
 
-
     damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
 
 
@@ -481,7 +510,6 @@ def show_attack_log(attack_hero, defend_hero, damage_list: list):
                                                                            damage_list[1], damage_list[0]))
     print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, attack_hero.status["Current HP"],
                                                      defend_hero.name, defend_hero.status["Current HP"]))
-
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
@@ -605,6 +633,7 @@ def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
 @dataclass
 class HeroMonkeyKing(Hero):
     def __init__(self, hero_level=1, name="Monkey King"):
+        Hero.__init__(self)
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
@@ -613,35 +642,72 @@ class HeroMonkeyKing(Hero):
         self.basic_hit_point = 164
         self.basic_regeneration = 1
         self.main_attribute = "Agility"  # Intelligence or Strength or Agility
-
         self.basic_strength = 15.2
         self.basic_agility = 18.3
         self.strength_level_growth = 2.8
         self.agility_level_growth = 3.7
-
-        self.bonus_strength = 0
-        self.bonus_agility = 0
-        self.bonus_damage_without_main_attribute = 0
-        # there are more than 1 skill can grant evasion ability
-        self.evasion_list = {}  # key: skill name, value: int, evasion possibility
-
-        self.bonus_attack_speed_without_agility = 0
-        self.bonus_armor_without_agility = 0
-        self.bonus_regeneration_without_strength = 0
-        self.bonus_hit_point_without_strength = 0
-
-        self.skill_list = {}
-        self.attack_attachment = {}
-        self.other_positive_effect = {}
-        self.other_negative_effect = {}
-        # there are more than 1 skill can grant critical attack ability
-        self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
         self.hero_level = hero_level
-        self.status = {}
+
+
+@dataclass
+class LifeStealer(Hero):
+    def __init__(self, hero_level=1, name="LifeStealer"):
+        Hero.__init__(self)
+        self.name = name
+        self.base_attack_time = 1.7
+        self.basic_attack_speed = 120
+        self.basic_damage = 25
+        self.basic_armor = 1
+        self.basic_hit_point = 262
+        self.basic_regeneration = 0.25
+        self.main_attribute = "Strength"  # Intelligence or Strength or Agility
+        self.basic_strength = 22.6
+        self.basic_agility = 16.4
+        self.strength_level_growth = 2.4
+        self.agility_level_growth = 2.6
+        self.hero_level = hero_level
+
+
+@dataclass
+class TreantProtector(Hero):
+    def __init__(self, hero_level=1, name="Treant Protector"):
+        Hero.__init__(self)
+        self.name = name
+        self.base_attack_time = 1.9
+        self.basic_attack_speed = 100
+        self.basic_damage = 66
+        self.basic_armor = -1
+        self.basic_hit_point = 262
+        self.basic_regeneration = 0.25
+        self.main_attribute = "Strength"  # Intelligence or Strength or Agility
+        self.basic_strength = 21.6
+        self.basic_agility = 13
+        self.strength_level_growth = 3.4
+        self.agility_level_growth = 2
+        self.hero_level = hero_level
+
+
+@dataclass
+class BountyHunter(Hero):
+    def __init__(self, hero_level=1, name="Bounty Hunter"):
+        Hero.__init__(self)
+        self.name = name
+        self.base_attack_time = 1.7
+        self.basic_attack_speed = 100
+        self.basic_damage = 34
+        self.basic_armor = 4
+        self.basic_hit_point = 160
+        self.basic_regeneration = 1.25
+        self.main_attribute = "Agility"  # Intelligence or Strength or Agility
+        self.basic_strength = 17.5
+        self.basic_agility = 18.4
+        self.strength_level_growth = 2.5
+        self.agility_level_growth = 2.6
+        self.hero_level = hero_level
 
 
 if __name__ == "__main__":
-    monkey_king_1 = HeroMonkeyKing(hero_level=5, name="WHN")
-    monkey_king_2 = HeroMonkeyKing(hero_level=5, name="WBH")
+    monkey_king_1 = HeroMonkeyKing(hero_level=1, name="WHN")
+    monkey_king_2 = LifeStealer(hero_level=1, name="WBH")
 
     duel(monkey_king_1, monkey_king_2, True)
