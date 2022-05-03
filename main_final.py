@@ -384,7 +384,7 @@ class Hero:
             # other_negative_effect["Curse"] : level of curse
             # other_negative_effect["Curse Reg Reduction"] : how many percent regenerate reduced
             # other_negative_effect["Curse Damage"] : curse damage per second
-            regenerate_hp = self.other_negative_effect["Curse Reg Reduction"] / 100 * regenerate_hp
+            regenerate_hp = (100 - self.other_negative_effect["Curse Reg Reduction"]) / 100 * regenerate_hp
             regenerate_hp -= self.other_negative_effect["Curse Damage"] * time_second
 
         regenerate_hp = round(regenerate_hp)
@@ -468,11 +468,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
 
     normal_attack_damage = highest_critical_rate / 100 * attack_damage
     damage_list[0] += normal_attack_damage
-    damage_list[9] = normal_attack_damage
-
-    if "Curse of Death" in defend_hero.skill_list.key():
-        damage_list[10] = damage_list[10] + damage_list[0] * (
-                100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
+    damage_list[10] = normal_attack_damage
 
     # TODO
     # Other attack attachments
@@ -511,14 +507,22 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
         if random.randint(1, 100) <= 30:
             actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
             life_steal_amount += actual_normal_attack_damage * (attack_hero.skill_list["Life Steal"] * 5 + 20) / 100
-            life_steal_amount = round(life_steal_amount)
+
+    if "Thorn Armor" in defend_hero.skill_list.keys():
+        damage_reflection = 0
+        actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
+        damage_reflection += actual_normal_attack_damage * (defend_hero.other_positive_effect["Physical Damage Reflection"]) / 100
+        damage_list[6] += damage_reflection
 
     defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
     defender_taken_damage += defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
     attacker_taken_damage += attack_hero.taken_physical_damage(damage_list[6])
     attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
+    if "Curse of Death" in defend_hero.skill_list.key() and life_steal_amount != 0:
+        life_steal_amount = life_steal_amount * (100 - defend_hero.other_positive_effect["Curse Reg Reduction"])/100
 
+    life_steal_amount = round(life_steal_amount)
     attack_hero.status["Current HP"] += life_steal_amount
     damage_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
     if show_log_or_not:
