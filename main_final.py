@@ -37,6 +37,7 @@ class Hero:
     other_negative_effect: dict
     # there are more than 1 skill can grant critical attack ability
     critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
+    main_skill_list: dict
 
     hero_level: int
 
@@ -61,6 +62,8 @@ class Hero:
         # there are more than 1 skill can grant critical attack ability
         self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
         self.status = {}
+        self.main_skill_list = {}
+        self.hero_level = 1
 
     def set_name(self, name):
         self.name = name
@@ -371,6 +374,11 @@ class Hero:
         self.status["Current HP"] -= actual_damage
         return actual_damage
 
+    def life_steal_regenerate(self, life_steal_amount: float) -> int:
+        actual_amount = round(life_steal_amount)
+        self.status["Current HP"] += actual_amount
+        return actual_amount
+
     def regenerate_and_curse(self, time_second: float) -> None:
         """
         Calculate hit point regenerate during time period.
@@ -390,6 +398,9 @@ class Hero:
         regenerate_hp = round(regenerate_hp)
 
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
+
+    def main_skill_feast(self):
+        self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) / 2)
 
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
@@ -473,6 +484,13 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # TODO
     # Other attack attachments
 
+    if "Feast" in attack_hero.main_skill_list.keys():
+        # Feast cause evadable physical damage
+        feast_life_steal = (0.01 + 0.006 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
+        feast_extra_damage = (0.004 + 0.002 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
+        damage_list[9] += feast_life_steal
+        damage_list[0] += feast_extra_damage
+
     damage_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
     damage_list[9] += damage_result[2]
     return damage_list
@@ -493,7 +511,7 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
     """
     attacker_taken_damage = 0
     defender_taken_damage = 0
-    life_steal_amount = 0
+    life_steal_amount = damage_list[9]
     if "Fire" in attack_hero.skill_list.keys():
         damage_amount, actual_physical_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
                                                                                                damage_list[0] +
@@ -504,6 +522,7 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
         actual_physical_resistance = defend_hero.status["Physical Resistance"]
 
     if "Life Steal" in attack_hero.skill_list.keys():
+        # Life Steal only consider actual damage from normal attack (affected by defend hero's physical resistance)
         if random.randint(1, 100) <= 30:
             actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
             life_steal_amount += actual_normal_attack_damage * (attack_hero.skill_list["Life Steal"] * 5 + 20) / 100
@@ -511,7 +530,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
     if "Thorn Armor" in defend_hero.skill_list.keys():
         damage_reflection = 0
         actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
-        damage_reflection += actual_normal_attack_damage * (defend_hero.other_positive_effect["Physical Damage Reflection"]) / 100
+        damage_reflection += actual_normal_attack_damage * (
+            defend_hero.other_positive_effect["Physical Damage Reflection"]) / 100
         damage_list[6] += damage_reflection
 
     defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
@@ -519,11 +539,12 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
     attacker_taken_damage += attack_hero.taken_physical_damage(damage_list[6])
     attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
-    if "Curse of Death" in defend_hero.skill_list.key() and life_steal_amount != 0:
-        life_steal_amount = life_steal_amount * (100 - defend_hero.other_positive_effect["Curse Reg Reduction"])/100
 
-    life_steal_amount = round(life_steal_amount)
-    attack_hero.status["Current HP"] += life_steal_amount
+    # curse will reduce life steal amount
+    if "Curse of Death" in defend_hero.skill_list.key() and life_steal_amount != 0:
+        life_steal_amount = life_steal_amount * (100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
+
+    attack_hero.life_steal_regenerate(life_steal_amount)
     damage_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
     if show_log_or_not:
         show_attack_log(attack_hero, defend_hero, damage_result)
