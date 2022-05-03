@@ -5,6 +5,8 @@ import random
 @dataclass
 class Hero:
     """A super-class for heroes"""
+    name: str
+
     base_attack_time: float
     basic_attack_speed: int
     basic_damage: int
@@ -39,6 +41,9 @@ class Hero:
     hero_level: int
 
     status: dict
+
+    def set_name(self, name):
+        self.name = name
 
     def set_hero_level(self, hero_level: int) -> None:
         """
@@ -142,7 +147,7 @@ class Hero:
             self.bonus_armor_without_agility += 2 * new_level
 
     def learn_skill_thorn_armor(self, qty_of_books: int):
-        ###反伤
+        # ##反伤
         """
         When a hero consumes Skill Book -Thorn Armor-.
 
@@ -156,7 +161,7 @@ class Hero:
         self.other_positive_effect["Physical Damage Reflection"] = 5 * new_level
 
     def learn_curse_of_death(self, qty_of_books: int):
-        ###吸血回血减少
+        # ##吸血回血减少
         """
         When a hero consumes Skill Book -Curse of Death-.
 
@@ -362,10 +367,11 @@ class Hero:
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
 
 
-def attack(attack_hero: Hero, defend_hero: Hero) -> list:
+def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     """
     One hero attacks another hero once.
 
+    :param show_log_or_not: weather or not show the details of attack in log
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends the attack
     :return: damage_list: the list of the attack result
@@ -413,7 +419,7 @@ def attack(attack_hero: Hero, defend_hero: Hero) -> list:
                     evaded = True
                     break
     if evaded:
-        damage_calculation(attack_hero, defend_hero, damage_list)
+        damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
         return damage_list
 
     highest_critical_rate = 100
@@ -430,28 +436,45 @@ def attack(attack_hero: Hero, defend_hero: Hero) -> list:
     # TODO
     # Other attack attachments
 
+    damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
 
-def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list) -> None:
+
+def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_log_or_not=False) -> list:
     """
     Calculate various damage caused by an attack action.
 
+    :param show_log_or_not: whether show details of attack result in log
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends
     :param damage_list: the damage caused an attack action, before
         # evadable physical damage, evadable magic damage, evadable true damage
         # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
         # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
-    :return: None
+    :return: a list of total damage taken by attack_hero and defend_hero
     """
+    attacker_taken_damage = 0
+    defender_taken_damage = 0
     if "Fire" in attack_hero.skill_list.keys():
-        calculate_physical_damage_under_skill_fire(attack_hero, defend_hero, damage_list[0] + damage_list[3])
+        defender_taken_damage += calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
+                                                                            damage_list[0] + damage_list[3])
     else:
-        defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
-    defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
-    defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
-    attack_hero.taken_physical_damage(damage_list[6])
-    attack_hero.taken_magical_damage(damage_list[7])
-    attack_hero.taken_true_damage(damage_list[8])
+        defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
+    defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
+    defender_taken_damage += defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
+    attacker_taken_damage += attack_hero.taken_physical_damage(damage_list[6])
+    attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
+    attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
+    damage_result = [attacker_taken_damage, defender_taken_damage]
+    if show_log_or_not:
+        show_attack_log(attack_hero, defend_hero, damage_result)
+    return damage_result
+
+
+def show_attack_log(attack_hero, defend_hero, damage_list: list):
+    print("{} attacks {}, caused {} damage, get {} counter damage.".format(attack_hero.name, defend_hero.name,
+                                                                           damage_list[1], damage_list[0]))
+    print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, attack_hero.status["Current HP"],
+                                                     defend_hero.name, defend_hero.status["Current HP"]))
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
@@ -482,9 +505,13 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
 
 
-def duel(hero_1: Hero, hero_2: Hero):
+def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
+
+    hero_1.calculate_status()
+    hero_2.calculate_status()
+
     corruption_status(hero_1, hero_2)
     corruption_status(hero_2, hero_1)
     curse_status(hero_1, hero_2)
@@ -505,7 +532,7 @@ def duel(hero_1: Hero, hero_2: Hero):
             last_hit_time_axis = hero_1_attack_time_axis
 
             # attack
-            attack(hero_1, hero_2)
+            attack(hero_1, hero_2, show_log_or_not)
             hero_1_attacked = True
 
         elif hero_1_attack_time_axis > hero_2_attack_time_axis:
@@ -513,7 +540,7 @@ def duel(hero_1: Hero, hero_2: Hero):
             hero_1.regenerate_and_curse(time)
             hero_2.regenerate_and_curse(time)
             last_hit_time_axis = hero_2_attack_time_axis
-            attack(hero_2, hero_1)
+            attack(hero_2, hero_1, show_log_or_not)
             hero_2_attacked = True
         else:
             # attack at same time, randomly decide sequence of attack
@@ -522,10 +549,10 @@ def duel(hero_1: Hero, hero_2: Hero):
             hero_2.regenerate_and_curse(time)
             last_hit_time_axis = hero_2_attack_time_axis
             if random.randint(0, 1) == 0:
-                attack(hero_1, hero_2)
+                attack(hero_1, hero_2, show_log_or_not)
                 hero_1_attacked = True
             else:
-                attack(hero_2, hero_1)
+                attack(hero_2, hero_1, show_log_or_not)
                 hero_2_attacked = True
 
         if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
@@ -570,7 +597,9 @@ def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
 
 @dataclass
 class HeroMonkeyKing(Hero):
-    def __init__(self):
+    def __init__(self, hero_level=1, name="Monkey King"):
+        self.name = name
+
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
         self.basic_damage = 31
@@ -601,9 +630,12 @@ class HeroMonkeyKing(Hero):
         self.other_negative_effect = {}
         # there are more than 1 skill can grant critical attack ability
         self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
-        self.hero_level = 0
+        self.hero_level = hero_level
         self.status = {}
 
 
 if __name__ == "__main__":
-    pass
+    monkey_king_1 = HeroMonkeyKing(hero_level=5, name="WHN")
+    monkey_king_2 = HeroMonkeyKing(hero_level=5, name="WBH")
+
+    duel(monkey_king_1, monkey_king_2, True)
