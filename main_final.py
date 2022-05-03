@@ -456,6 +456,31 @@ class Hero:
     def main_skill_feast(self):
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
 
+    def learn_main_skill_blade_dance(self):
+        skill_level = min(4, (self.hero_level + 1) // 2)
+        self.main_skill_list["Blade Dance"] = skill_level
+        # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
+        self.critical_list["Blade Dance"] = [15 + 5 * skill_level, 180]
+
+        # Coup de Grace
+
+    def learn_main_skill_coup_de_grace(self):
+        if self.hero_level < 6:
+            return None
+        skill_level = min(3, self.hero_level // 6)
+        self.main_skill_list["Coup de Grace"] = skill_level
+        # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
+        self.critical_list["Coup de Grace"] = [15, 75 + 125 * skill_level]
+
+    def learn_main_skill_grow(self):
+        if self.hero_level < 6:
+            return None
+        skill_level = min(3, self.hero_level // 6)
+        self.main_skill_list["Grow"] = skill_level
+        self.bonus_armor_without_agility += 6 + 6 * skill_level
+        self.bonus_damage_without_main_attribute += 40 * skill_level - 10
+        self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
+
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     """
@@ -534,8 +559,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # attack might be critical
     # each critical is independent, the final damage only counts the highest critical rate
     if len(attack_hero.critical_list.keys()) != 0:
-        for critical_skill in attack_hero.critical_list:
-            if random.randint(0, 100) <= attack_hero.critical_list[critical_skill][0]:
+        for critical_skill in attack_hero.critical_list.keys():
+            if random.randint(1, 100) <= attack_hero.critical_list[critical_skill][0]:
                 highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
 
     normal_attack_damage = highest_critical_rate / 100 * attack_damage
