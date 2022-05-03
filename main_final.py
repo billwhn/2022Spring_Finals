@@ -481,6 +481,10 @@ class Hero:
         self.bonus_damage_without_main_attribute += 40 * skill_level - 10
         self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
 
+    def learn_main_skill_moment_of_courage(self):
+        skill_level = min(4, (self.hero_level + 1) // 2)
+        self.main_skill_list["Moment of Courage"] = skill_level
+
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     """
@@ -567,8 +571,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     evadable_physical_damage += normal_attack_damage
 
     if 'Crushing' in attack_hero.skill_list.keys():
-        p = random.randint(1, 100)
-        if p <= 20:
+        if random.randint(1, 100) <= 20:
             skill_level = attack_hero.skill_list['Crushing']
             evadable_true_damage += 50 + 50 * skill_level  # Basic damage
             evadable_true_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
@@ -622,15 +625,15 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
     defender_taken_damage = 0
     life_steal_amount = damage_list[9]
     if "Fire" in attack_hero.skill_list.keys():
-        damage_amount, actual_physical_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
-                                                                                               damage_list[0] +
-                                                                                               damage_list[3])
+        damage_amount, normal_attack_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
+                                                                                             damage_list[10])
         defender_taken_damage += damage_amount
+        defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3] - damage_list[10])
     else:
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
-        actual_physical_resistance = defend_hero.status["Physical Resistance"]
+        normal_attack_resistance = defend_hero.status["Physical Resistance"]
 
-    actual_normal_attack_damage = damage_list[10] * actual_physical_resistance
+    actual_normal_attack_damage = damage_list[10] * normal_attack_resistance
     life_steal_amount += actual_normal_attack_damage * life_steal_rate / 100
 
     if "Thorn Armor" in defend_hero.skill_list.keys():
@@ -693,12 +696,13 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
 
 
-def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero):
-    if 1 > 0:
-        life_steal_rate = 0  # defend_hero.main_skill_list[""]
-        defend_hero.life_steal_rate += life_steal_rate
-        attack(defend_hero, attack_hero, True)
-        defend_hero.life_steal_rate -= life_steal_rate
+def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False):
+    if "Moment of Courage" in defend_hero.main_skill_list.keys():
+        if random.randint(1,100) <= 25:
+            life_steal_rate = 10 + 45
+            defend_hero.life_steal_rate += life_steal_rate
+            attack(defend_hero, attack_hero, show_log_or_not)
+            defend_hero.life_steal_rate -= life_steal_rate
 
 
 def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
@@ -729,6 +733,7 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
 
             # attack
             attack(hero_1, hero_2, show_log_or_not)
+            trigger_moment_of_courage(hero_1, hero_2, show_log_or_not)
 
             hero_1_attacked = True
 
@@ -738,6 +743,7 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
             hero_2.regenerate_and_curse(time)
             last_hit_time_axis = hero_2_attack_time_axis
             attack(hero_2, hero_1, show_log_or_not)
+            trigger_moment_of_courage(hero_2, hero_1, show_log_or_not)
             hero_2_attacked = True
         else:
             # attack at same time, randomly decide sequence of attack
@@ -747,9 +753,11 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
             last_hit_time_axis = hero_2_attack_time_axis
             if random.randint(0, 1) == 0:
                 attack(hero_1, hero_2, show_log_or_not)
+                trigger_moment_of_courage(hero_1, hero_2, show_log_or_not)
                 hero_1_attacked = True
             else:
                 attack(hero_2, hero_1, show_log_or_not)
+                trigger_moment_of_courage(hero_2, hero_1, show_log_or_not)
                 hero_2_attacked = True
 
         if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
