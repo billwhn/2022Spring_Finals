@@ -358,6 +358,17 @@ class Hero:
         else:
             self.other_positive_effect["Heart"] = equip_or_take_off
 
+    def equip_satanic(self, equip_or_take_off: int) -> None:
+        """
+        When hero equips Satanic
+
+        :param equip_or_take_off: 1 means equip Satanic, -1 means take off Satanic, could be 2 or more
+        :return: None
+        """
+        self.bonus_strength += 25 * equip_or_take_off
+        self.life_steal_rate += 25 * equip_or_take_off
+        self.bonus_damage_without_main_attribute += 45 * equip_or_take_off
+
     def calculate_status(self):
         """
         All parameters are set, calculate attack, armor and other attributes.
