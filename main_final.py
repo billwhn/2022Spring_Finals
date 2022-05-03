@@ -12,7 +12,7 @@ class Hero:
     basic_damage: int
     basic_armor: float
     basic_hit_point: int
-    basic_regeneration: int
+    basic_regeneration: float
     main_attribute: str  # Intelligence or Strength or Agility
 
     basic_strength: float
@@ -451,32 +451,8 @@ class Hero:
 
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
 
-    def learn_main_skill_feast(self):
+    def main_skill_feast(self):
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
-
-    def learn_main_skill_blade_dance(self):
-        skill_level = min(4, (self.hero_level + 1) // 2)
-        self.main_skill_list["Blade Dance"] = skill_level
-        # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
-        self.critical_list["Blade Dance"] = [15 + 5 * skill_level, 180]
-
-    # Coup de Grace
-    def learn_main_skill_coup_de_grace(self):
-        if self.hero_level < 6:
-            return None
-        skill_level = min(3, self.hero_level // 6)
-        self.main_skill_list["Coup de Grace"] = skill_level
-        # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
-        self.critical_list["Coup de Grace"] = [15, 75 + 125 * skill_level]
-
-    def learn_main_skill_grow(self):
-        if self.hero_level < 6:
-            return None
-        skill_level = min(3, self.hero_level // 6)
-        self.main_skill_list["Grow"] = skill_level
-        self.bonus_armor_without_agility += 6 + 6 * skill_level
-        self.bonus_damage_without_main_attribute += 40 * skill_level - 10
-        self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
 
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
@@ -549,8 +525,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     # attack might be critical
     # each critical is independent, the final damage only counts the highest critical rate
     if len(attack_hero.critical_list.keys()) != 0:
-        for critical_skill in attack_hero.critical_list.keys():
-            if random.randint(1, 100) <= attack_hero.critical_list[critical_skill][0]:
+        for critical_skill in attack_hero.critical_list:
+            if random.randint(0, 100) <= attack_hero.critical_list[critical_skill][0]:
                 highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
 
     normal_attack_damage = highest_critical_rate / 100 * attack_damage
@@ -617,7 +593,7 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list, show_l
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
 
     # curse will reduce life steal amount
-    if "Curse of Death" in defend_hero.skill_list.key() and life_steal_amount != 0:
+    if "Curse of Death" in defend_hero.skill_list.keys() and life_steal_amount != 0:
         life_steal_amount = life_steal_amount * (100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
 
     attack_hero.life_steal_regenerate(life_steal_amount)
@@ -635,7 +611,7 @@ def show_attack_log(attack_hero, defend_hero, damage_list: list):
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
-                                               physical_damage_amount: float) -> int:
+                                               physical_damage_amount: float) -> tuple:
     if defend_hero.status["Armor"] > 0:
         actual_armor = defend_hero.status["Armor"] * (100 - attack_hero.other_positive_effect["Ignore Armor"]) / 100
     else:
