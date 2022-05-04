@@ -42,6 +42,7 @@ class Hero:
 
     hero_level: int
     life_steal_rate: int
+    pierce: dict
 
     status: dict
 
@@ -67,6 +68,7 @@ class Hero:
         self.main_skill_list = {}
         self.hero_level = 1
         self.life_steal_rate = 0
+        self.pierce = {}
 
     def set_name(self, name):
         self.name = name
@@ -405,9 +407,9 @@ class Hero:
         self.status["Physical Resistance"] = 1 - (0.052 * self.status["Armor"]) / (
                 0.9 + 0.048 * abs(self.status["Armor"]))
         self.status["Magic Resistance"] = 0.25
-        self.status["Pierce"] = {}
+
         if "MKB" in self.attack_attachment.keys():
-            self.status["Pierce"]["MKB"] = pierce_possibility_mkb(self.attack_attachment["MKB"]) * 100
+            self.pierce["MKB"] = pierce_possibility_mkb(self.attack_attachment["MKB"]) * 100
 
     def taken_physical_damage(self, physical_damage_amount: float) -> int:
         """
@@ -512,6 +514,37 @@ class Hero:
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["Moment of Courage"] = skill_level
 
+    def roll_main_skill(self, amount_of_main_skill: int):
+        count = 0
+        while True:
+            if count == amount_of_main_skill:
+                break
+            randon_int = random.randint(1, 6)
+            if randon_int == 1:
+                if "JinGu Mastery" not in self.main_skill_list.keys():
+                    self.learn_main_skill_jingu_mastery()
+                    count += 1
+            elif randon_int == 2:
+                if "Feast" not in self.main_skill_list.keys():
+                    self.learn_main_skill_feast()
+                    count += 1
+            elif randon_int == 3:
+                if "Blade Dance" not in self.main_skill_list.keys():
+                    self.learn_main_skill_blade_dance()
+                    count += 1
+            elif randon_int == 4:
+                if "Coup de Grace" not in self.main_skill_list.keys():
+                    self.learn_main_skill_coup_de_grace()
+                    count += 1
+            elif randon_int == 5:
+                if "Moment of Courage" not in self.main_skill_list.keys():
+                    self.learn_main_skill_moment_of_courage()
+                    count += 1
+            elif randon_int == 6:
+                if "Grow" not in self.main_skill_list.keys():
+                    self.learn_main_skill_grow()
+                    count += 1
+
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all_the_details=False) -> list:
     """
@@ -565,8 +598,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
                 print("{} triggered Smash, deal damage {}".format(attack_hero.name, smash_damage))
 
     # calculate if this attack is evaded
-    for key in attack_hero.status["Pierce"].keys():
-        if random.randint(1, 100) <= attack_hero.attack_attachment["Pierce"][key]:
+    for key in attack_hero.pierce.keys():
+        if random.randint(1, 100) <= attack_hero.pierce[key]:
             pierce = True
             if key == "MKB":
                 # un-evadable magic damage from MKB
@@ -845,6 +878,9 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
         if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
             break
 
+        if last_hit_time_axis >= 500:
+            break
+
         if hero_1_attacked:
             hero_1_attack_time_axis += hero_1.status["Attack Interval"]
             hero_1_attacked = False
@@ -905,6 +941,8 @@ class HeroMonkeyKing(Hero):
         self.agility_level_growth = 3.7
         self.hero_level = hero_level
 
+        self.learn_main_skill_jingu_mastery()
+
 
 @dataclass
 class LifeStealer(Hero):
@@ -924,6 +962,8 @@ class LifeStealer(Hero):
         self.strength_level_growth = 2.4
         self.agility_level_growth = 2.6
         self.hero_level = hero_level
+
+        self.learn_main_skill_feast()
 
 
 @dataclass
@@ -966,16 +1006,105 @@ class BountyHunter(Hero):
         self.hero_level = hero_level
 
 
+def aggregate_analyze(loop_times: int, hero_level: int, hero_1_name: str, hero_2_name: str,
+                      number_of_skill_books: int, number_of_main_skills: int, items_dict: dict,
+                      show_loop_aggregate_result=True, show_skill_list_each_time=False, show_log_or_not=False,
+                      show_all_the_details=False, show_regenerate_rs=False):
+    winning_count = {}
+    winning_count_main_skill = {}
+    for i in range(0, loop_times):
+        hero_1 = HeroMonkeyKing(hero_level=hero_level, name=hero_1_name)
+        hero_2 = HeroMonkeyKing(hero_level=hero_level, name=hero_2_name)
+
+        for item in items_dict.keys():
+            if item == "MKB":
+                hero_1.equip_monkey_king_bar(items_dict[item])
+                hero_2.equip_monkey_king_bar(items_dict[item])
+            elif item == "Satanic":
+                hero_1.equip_satanic(items_dict[item])
+                hero_2.equip_satanic(items_dict[item])
+            elif item == "Heart":
+                hero_1.equip_heart_of_tarrasque(items_dict[item])
+                hero_2.equip_heart_of_tarrasque(items_dict[item])
+
+        hero_1.get_random_skill_book(number_of_skill_books)
+        hero_2.get_random_skill_book(number_of_skill_books)
+
+        if number_of_main_skills != 0:
+            hero_1.roll_main_skill(number_of_main_skills)
+            hero_2.roll_main_skill(number_of_main_skills)
+
+        duel(hero_1, hero_2, show_log_or_not, show_all_the_details, show_regenerate_rs)
+
+        if show_skill_list_each_time:
+            print("\nSkill List:")
+            print(
+                "{}: {}, main skills: {}".format(hero_1.name, hero_1.skill_list.keys(), hero_1.main_skill_list.keys()))
+            print(
+                "{}: {}, main skills: {}".format(hero_2.name, hero_2.skill_list.keys(), hero_2.main_skill_list.keys()))
+
+        if hero_2.status["Current HP"] <= 0:
+            skill_list = hero_1.skill_list.keys()
+            main_skill_list = hero_1.main_skill_list.keys()
+        else:
+            skill_list = hero_2.skill_list.keys()
+            main_skill_list = hero_2.main_skill_list.keys()
+
+        for skill in skill_list:
+            if skill in winning_count.keys():
+                winning_count[skill] += 1
+            else:
+                winning_count[skill] = 1
+
+        for skill in main_skill_list:
+            if skill in winning_count_main_skill.keys():
+                winning_count_main_skill[skill] += 1
+            else:
+                winning_count_main_skill[skill] = 1
+
+    if show_loop_aggregate_result:
+        winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
+        winning_count_main_skill = dict(sorted(winning_count_main_skill.items(), key=lambda w: (w[1], w[0])))
+
+        attention_str = "{} Summary {}\n".format('#' * 60, '#' * 60)
+        print("\n{}".format(attention_str * 3))
+
+        print("Loop Times {}, Hero Level {}, Amount of Skill Books {}"
+              .format(loop_times, hero_level, number_of_skill_books))
+
+        show_dict_report("Sub Skills", winning_count, loop_times)
+
+        show_dict_report("Main Skills", winning_count_main_skill, loop_times)
+
+
+def show_dict_report(report_name: str, dict_to_report: dict, loop_times: int):
+    print('\n{}{} Summary'.format(' ' * 20, report_name))
+    print("Skill Name{}Win Fights{}Occurrence"
+          .format(' ' * (30 - len('Skill Name')), ' ' * (15 - len('Win Fights'))))
+    for skill in dict_to_report.keys():
+        print("{}{}{}{}{}%"
+              .format(skill, ' ' * (30 - len(skill)),
+                      dict_to_report[skill], ' ' * (15 - len(str(dict_to_report[skill]))),
+                      round(int(dict_to_report[skill]) / loop_times * 100, 2)))
+
+
 if __name__ == "__main__":
-    hero_1 = HeroMonkeyKing(hero_level=1)
-    hero_2 = LifeStealer(hero_level=1)
+    item_dict = {}
 
-    hero_1.get_random_skill_book(20)
-    hero_2.get_random_skill_book(20)
+    aggregate_analyze(1000, 6, "Monkey King 1st", "King Monkey 2nd", 20, 0, item_dict,
+                      True, False, False, False, False)
 
-    duel(hero_1, hero_2, True, True, False)
+    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+                      True, False, False, False, False)
 
-    print("Skill List:")
-    print("{}: {}".format(hero_1.name, hero_1.skill_list.keys()))
-    print("{}: {}".format(hero_2.name, hero_2.skill_list.keys()))
-    print(len(hero_1.skill_list.keys()))
+    item_dict["MKB"] = 1
+    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+                      True, False, False, False, False)
+
+    item_dict["Heart"] = 1
+    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+                      True, False, False, False, False)
+
+    item_dict["Heart"] = 3
+    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+                      True, False, False, False, False)
