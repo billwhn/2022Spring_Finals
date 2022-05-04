@@ -577,8 +577,6 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
         attack_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
         return attack_result
 
-
-
     highest_critical_rate = 100
 
     # attack might be critical
@@ -639,7 +637,6 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             attack_hero.status['Highest Damage'] -= bonus_jingu_damage
             attack_hero.life_steal_rate -= 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
 
-
     return attack_result
 
 
@@ -698,8 +695,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
 
 
 def show_attack_log(attack_hero, defend_hero, damage_list: list):
-    print("{} attacks {}, caused {} damage, get {} counter damage.".format(attack_hero.name, defend_hero.name,
-                                                                           damage_list[1], damage_list[0]))
+    print("\n{} attacks {}, caused {} damage, get {} counter damage, regenerates {} by life steal."
+          .format(attack_hero.name, defend_hero.name, damage_list[1], damage_list[0], damage_list[2]))
     print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, attack_hero.status["Current HP"],
                                                      defend_hero.name, defend_hero.status["Current HP"]))
 
@@ -918,7 +915,9 @@ class BountyHunter(Hero):
 
 
 if __name__ == "__main__":
-    monkey_king_1 = BountyHunter(hero_level=1, name="WHN")
-    monkey_king_2 = LifeStealer(hero_level=1, name="WBH")
+    monkey_king_1 = HeroMonkeyKing(hero_level=1)
+    monkey_king_2 = LifeStealer(hero_level=1)
+
+    monkey_king_1.learn_main_skill_jingu_mastery()
 
     duel(monkey_king_1, monkey_king_2, True)
