@@ -1228,16 +1228,17 @@ def aggregate_analyze(loop_times: int, hero_level: int,
 
         show_dict_report("Sub Skills", winning_count, total_occurance, loop_times)
 
-        show_dict_report("Sub Skills One side", winning_count_only, total_occurance_only, loop_times)
+        show_dict_report("Sub Skills Rid of Cases Both Sides Learned One Skill", winning_count_only,
+                         total_occurance_only, loop_times)
 
         show_dict_report("Main Skills", winning_count_main_skill, total_occurance_main_skill, loop_times)
 
-        show_dict_report("Main Skills One side", winning_count_main_skill_only, total_occurance_main_skill_only,
-                         loop_times)
+        show_dict_report("Main Skills Rid of Cases Both Sides Learned One Skill", winning_count_main_skill_only,
+                         total_occurance_main_skill_only, loop_times)
 
 
 def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int) -> None:
-    print('\n{}{} Summary'.format(' ' * 20, report_name))
+    print('\n{}{}{}'.format(' ' * ((90-len(report_name))//2), report_name, ' ' * ((90-len(report_name))//2)))
     print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurance{}Winner-Side/Total"
           .format(' ' * (25 - len('Skill Name')), ' ' * (15 - len('Win Fights')),
                   ' ' * (27 - len('Occurrence(winner-side)')), ' ' * (20 - len('Total Occurance'))))
