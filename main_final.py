@@ -945,7 +945,7 @@ class HeroMonkeyKing(Hero):
 
 
 @dataclass
-class LifeStealer(Hero):
+class HeroLifeStealer(Hero):
     def __init__(self, hero_level=1, name="LifeStealer"):
         Hero.__init__(self)
         self.name = name
@@ -967,7 +967,7 @@ class LifeStealer(Hero):
 
 
 @dataclass
-class TreantProtector(Hero):
+class HeroTreantProtector(Hero):
     def __init__(self, hero_level=1, name="Treant Protector"):
         Hero.__init__(self)
         self.name = name
@@ -987,7 +987,7 @@ class TreantProtector(Hero):
 
 
 @dataclass
-class BountyHunter(Hero):
+class HeroBountyHunter(Hero):
     def __init__(self, hero_level=1, name="Bounty Hunter"):
         Hero.__init__(self)
         self.name = name
@@ -1006,7 +1006,33 @@ class BountyHunter(Hero):
         self.hero_level = hero_level
 
 
-def aggregate_analyze(loop_times: int, hero_level: int, hero_1_name: str, hero_2_name: str,
+def hero_initialize(hero_model: str, hero_level=1, hero_name=''):
+    if hero_model == 'MonkeyKing':
+        if hero_name == '':
+            return HeroMonkeyKing(hero_level=hero_level)
+        else:
+            return HeroMonkeyKing(hero_level=hero_level, name=hero_name)
+    elif hero_model == 'LifeStealer':
+        if hero_name == '':
+            return HeroLifeStealer(hero_level=hero_level)
+        else:
+            return HeroLifeStealer(hero_level=hero_level, name=hero_name)
+    elif hero_model == 'TreantProtector':
+        if hero_name == '':
+            return HeroTreantProtector(hero_level=hero_level)
+        else:
+            return HeroTreantProtector(hero_level=hero_level, name=hero_name)
+    elif hero_model == 'BountyHunter':
+        if hero_name == '':
+            return HeroBountyHunter(hero_level=hero_level)
+        else:
+            return HeroBountyHunter(hero_level=hero_level, name=hero_name)
+    else:
+        raise ValueError('No such Hero {} in our Model!'.format(hero_model))
+
+
+def aggregate_analyze(loop_times: int, hero_level: int,
+                      hero_1_model: str, hero_2_model: str, hero_1_name: str, hero_2_name: str,
                       number_of_skill_books: int, number_of_main_skills: int, items_dict: dict,
                       show_loop_aggregate_result=True, show_skill_list_each_time=False, show_log_or_not=False,
                       show_all_the_details=False, show_regenerate_rs=False):
@@ -1020,8 +1046,8 @@ def aggregate_analyze(loop_times: int, hero_level: int, hero_1_name: str, hero_2
     total_occurance_main_skill_only = {}
 
     for i in range(0, loop_times):
-        hero_1 = HeroMonkeyKing(hero_level=hero_level, name=hero_1_name)
-        hero_2 = HeroMonkeyKing(hero_level=hero_level, name=hero_2_name)
+        hero_1 = hero_initialize(hero_1_model, hero_level, hero_1_name)
+        hero_2 = hero_initialize(hero_2_model, hero_level, hero_2_name)
 
         for item in items_dict.keys():
             if item == "MKB":
@@ -1061,83 +1087,132 @@ def aggregate_analyze(loop_times: int, hero_level: int, hero_1_name: str, hero_2
             skill_list2 = hero_1.skill_list.keys()
             main_skill_list2 = hero_1.main_skill_list.keys()
 
-        for skill in hero_1.skill_list.keys():
-            if skill in total_occurance.keys():
-                total_occurance[skill] += 1
-            else:
-                total_occurance[skill] = 1
-
-        for skill in hero_2.skill_list.keys():
-            if skill in total_occurance.keys():
-                total_occurance[skill] += 1
-            else:
-                total_occurance[skill] = 1
-
-        for skill in hero_1.skill_list.keys():
-            if skill not in hero_2.skill_list.keys():
-                if skill in total_occurance_only.keys():
-                    total_occurance_only[skill] += 1
+        def update_dict(dict_to_update, source_dict):
+            for skill_name in source_dict.keys():
+                if skill_name in dict_to_update.keys():
+                    dict_to_update[skill_name] += 1
                 else:
-                    total_occurance_only[skill] = 1
+                    dict_to_update[skill_name] = 1
+            return dict_to_update
 
-        for skill in hero_2.skill_list.keys():
-            if skill not in hero_1.skill_list.keys():
-                if skill in total_occurance_only.keys():
-                    total_occurance_only[skill] += 1
+        total_occurance = update_dict(total_occurance, hero_1.skill_list)
+        # for skill in hero_1.skill_list.keys():
+        #     if skill in total_occurance.keys():
+        #         total_occurance[skill] += 1
+        #     else:
+        #         total_occurance[skill] = 1
+
+        total_occurance = update_dict(total_occurance, hero_2.skill_list)
+        # for skill in hero_2.skill_list.keys():
+        #     if skill in total_occurance.keys():
+        #         total_occurance[skill] += 1
+        #     else:
+        #         total_occurance[skill] = 1
+
+        def update_only_dict(dict_to_update, source_dict, rival_dict):
+            for skill_name in source_dict.keys():
+                if skill_name not in rival_dict.keys():
+                    if skill_name in dict_to_update.keys():
+                        total_occurance_only[skill_name] += 1
+                    else:
+                        total_occurance_only[skill_name] = 1
+            return dict_to_update
+
+        total_occurance_only = update_only_dict(total_occurance_only, hero_1.skill_list, hero_2.skill_list)
+        # for skill in hero_1.skill_list.keys():
+        #     if skill not in hero_2.skill_list.keys():
+        #         if skill in total_occurance_only.keys():
+        #             total_occurance_only[skill] += 1
+        #         else:
+        #             total_occurance_only[skill] = 1
+
+        total_occurance_only = update_only_dict(total_occurance_only, hero_2.skill_list, hero_1.skill_list)
+        # for skill in hero_2.skill_list.keys():
+        #     if skill not in hero_1.skill_list.keys():
+        #         if skill in total_occurance_only.keys():
+        #             total_occurance_only[skill] += 1
+        #         else:
+        #             total_occurance_only[skill] = 1
+
+        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_1.main_skill_list)
+        # for skill in hero_1.main_skill_list.keys():
+        #     if skill in total_occurance_main_skill.keys():
+        #         total_occurance_main_skill[skill] += 1
+        #     else:
+        #         total_occurance_main_skill[skill] = 1
+
+        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_2.main_skill_list)
+        # for skill in hero_2.main_skill_list.keys():
+        #     if skill in total_occurance_main_skill.keys():
+        #         total_occurance_main_skill[skill] += 1
+        #     else:
+        #         total_occurance_main_skill[skill] = 1
+
+        total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
+                                                           hero_1.main_skill_list, hero_2.main_skill_list)
+        # for skill in hero_1.main_skill_list.keys():
+        #     if skill not in hero_2.main_skill_list.keys():
+        #         if skill in total_occurance_main_skill_only.keys():
+        #             total_occurance_main_skill_only[skill] += 1
+        #         else:
+        #             total_occurance_main_skill_only[skill] = 1
+
+        total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
+                                                           hero_2.main_skill_list, hero_1.main_skill_list)
+        # for skill in hero_2.main_skill_list.keys():
+        #     if skill not in hero_1.main_skill_list.keys():
+        #         if skill in total_occurance_main_skill_only.keys():
+        #             total_occurance_main_skill_only[skill] += 1
+        #         else:
+        #             total_occurance_main_skill_only[skill] = 1
+
+        def update_dict_by_list(dict_to_update, source_list):
+            for skill_name in source_list:
+                if skill_name in dict_to_update.keys():
+                    dict_to_update[skill_name] += 1
                 else:
-                    total_occurance_only[skill] = 1
+                    dict_to_update[skill_name] = 1
+            return dict_to_update
 
-        for skill in hero_1.main_skill_list.keys():
-            if skill in total_occurance_main_skill.keys():
-                total_occurance_main_skill[skill] += 1
-            else:
-                total_occurance_main_skill[skill] = 1
+        winning_count = update_dict_by_list(winning_count, skill_list)
+        # for skill in skill_list:
+        #     if skill in winning_count.keys():
+        #         winning_count[skill] += 1
+        #     else:
+        #         winning_count[skill] = 1
 
-        for skill in hero_2.main_skill_list.keys():
-            if skill in total_occurance_main_skill.keys():
-                total_occurance_main_skill[skill] += 1
-            else:
-                total_occurance_main_skill[skill] = 1
+        def update_dict_by_list_only(dict_to_update, source_list, rival_list):
+            for skill_name in source_list:
+                if skill_name not in rival_list:
+                    if skill_name in dict_to_update.keys():
+                        dict_to_update[skill_name] += 1
+                    else:
+                        dict_to_update[skill_name] = 1
+            return dict_to_update
 
-        for skill in hero_1.main_skill_list.keys():
-            if skill not in hero_2.main_skill_list.keys():
-                if skill in total_occurance_main_skill_only.keys():
-                    total_occurance_main_skill_only[skill] += 1
-                else:
-                    total_occurance_main_skill_only[skill] = 1
+        winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
+        # for skill in skill_list:
+        #     if skill not in skill_list2:
+        #         if skill in winning_count_only.keys():
+        #             winning_count_only[skill] += 1
+        #         else:
+        #             winning_count_only[skill] = 1
 
-        for skill in hero_2.main_skill_list.keys():
-            if skill not in hero_1.main_skill_list.keys():
-                if skill in total_occurance_main_skill_only.keys():
-                    total_occurance_main_skill_only[skill] += 1
-                else:
-                    total_occurance_main_skill_only[skill] = 1
+        winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
+        # for skill in main_skill_list:
+        #     if skill in winning_count_main_skill.keys():
+        #         winning_count_main_skill[skill] += 1
+        #     else:
+        #         winning_count_main_skill[skill] = 1
 
-        for skill in skill_list:
-            if skill in winning_count.keys():
-                winning_count[skill] += 1
-            else:
-                winning_count[skill] = 1
-
-        for skill in skill_list:
-            if skill not in skill_list2:
-                if skill in winning_count_only.keys():
-                    winning_count_only[skill] += 1
-                else:
-                    winning_count_only[skill] = 1
-
-        for skill in main_skill_list:
-            if skill in winning_count_main_skill.keys():
-                winning_count_main_skill[skill] += 1
-            else:
-                winning_count_main_skill[skill] = 1
-
-        for skill in main_skill_list:
-            if skill not in main_skill_list2:
-                if skill in winning_count_main_skill_only.keys():
-                    winning_count_main_skill_only[skill] += 1
-                else:
-                    winning_count_main_skill_only[skill] = 1
+        winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
+                                                                 main_skill_list, main_skill_list2)
+        # for skill in main_skill_list:
+        #     if skill not in main_skill_list2:
+        #         if skill in winning_count_main_skill_only.keys():
+        #             winning_count_main_skill_only[skill] += 1
+        #         else:
+        #             winning_count_main_skill_only[skill] = 1
 
     if show_loop_aggregate_result:
         winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
@@ -1181,20 +1256,20 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
 if __name__ == "__main__":
     item_dict = {}
 
-    aggregate_analyze(1000, 6, "Monkey King 1st", "King Monkey 2nd", 20, 0, item_dict,
+    aggregate_analyze(1000, 6, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 20, 0, item_dict,
                       True, False, False, False, False)
 
-    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
                       True, False, False, False, False)
 
     item_dict["MKB"] = 1
-    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
                       True, False, False, False, False)
 
     item_dict["Heart"] = 1
-    aggregate_analyze(1000, 15, "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
                       True, False, False, False, False)
 
     item_dict["Heart"] = 3
-    aggregate_analyze(1000, 25, "Monkey King 1st", "King Monkey 2nd", 120, 0, item_dict,
+    aggregate_analyze(1000, 25, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 120, 0, item_dict,
                       True, False, False, False, False)
