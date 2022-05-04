@@ -416,8 +416,8 @@ class Hero:
         :return: Actual damage caused
         """
         actual_damage = physical_damage_amount * self.status["Physical Resistance"]
-        actual_damage = round(actual_damage)
         self.status["Current HP"] -= actual_damage
+        actual_damage = round(actual_damage)
         return actual_damage
 
     def taken_magical_damage(self, magical_damage_amount: float) -> int:
@@ -428,8 +428,8 @@ class Hero:
         :return: Actual damage caused
         """
         actual_damage = magical_damage_amount * (1 - self.status["Magic Resistance"])
-        actual_damage = round(actual_damage)
         self.status["Current HP"] -= actual_damage
+        actual_damage = round(actual_damage)
         return actual_damage
 
     def taken_true_damage(self, true_damage_amount: float) -> int:
@@ -439,13 +439,13 @@ class Hero:
         :param true_damage_amount: Damage Amount
         :return: Actual damage caused
         """
+        self.status["Current HP"] -= true_damage_amount
         actual_damage = round(true_damage_amount)
-        self.status["Current HP"] -= actual_damage
         return actual_damage
 
     def life_steal_regenerate(self, life_steal_amount: float) -> int:
+        self.status["Current HP"] += life_steal_amount
         actual_amount = round(life_steal_amount)
-        self.status["Current HP"] += actual_amount
         return actual_amount
 
     def regenerate_and_curse(self, time_second: float) -> None:
@@ -464,9 +464,9 @@ class Hero:
             regenerate_hp = (100 - self.other_negative_effect["Curse Reg Reduction"]) / 100 * regenerate_hp
             regenerate_hp -= self.other_negative_effect["Curse Damage"] * time_second
 
-        regenerate_hp = round(regenerate_hp)
-
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
+        regenerate_hp = round(regenerate_hp)
+        return regenerate_hp
 
     def learn_main_skill_feast(self):
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
@@ -595,9 +595,6 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             evadable_true_damage += 50 + 50 * skill_level  # Basic damage
             evadable_true_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
 
-    # TODO
-    # Other attack attachments
-
     if "Feast" in attack_hero.main_skill_list.keys():
         # Feast cause evadable physical damage
         feast_life_steal = (0.01 + 0.006 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
@@ -696,9 +693,10 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
 
 def show_attack_log(attack_hero, defend_hero, damage_list: list):
     print("\n{} attacks {}, caused {} damage, get {} counter damage, regenerates {} by life steal."
-          .format(attack_hero.name, defend_hero.name, damage_list[1], damage_list[0], damage_list[2]))
-    print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, attack_hero.status["Current HP"],
-                                                     defend_hero.name, defend_hero.status["Current HP"]))
+          .format(attack_hero.name, defend_hero.name,
+                  round(damage_list[1]), round(damage_list[0]), round(damage_list[2])))
+    print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, round(attack_hero.status["Current HP"]),
+                                                     defend_hero.name, round(defend_hero.status["Current HP"])))
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
@@ -710,8 +708,9 @@ def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: H
     actual_physical_resistance = 1 - (0.052 * actual_armor) / (0.9 + 0.048 * abs(actual_armor))
 
     actual_damage = physical_damage_amount * actual_physical_resistance
-    actual_damage = round(actual_damage)
+
     defend_hero.status["Current HP"] -= actual_damage
+    actual_damage = round(actual_damage)
 
     return actual_damage, actual_physical_resistance
 
