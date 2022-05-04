@@ -9,7 +9,8 @@ class Hero:
 
     base_attack_time: float
     basic_attack_speed: int
-    basic_damage: int
+    basic_lowest_damage: int
+    basic_highest_damage: int
     basic_armor: float
     basic_hit_point: int
     basic_regeneration: float
@@ -385,7 +386,10 @@ class Hero:
             damage_from_attribute = self.status["Agility"]
         else:
             raise Exception("Main Attribute Error, should be Strength or Intelligence or Agility")
-        self.status['Damage'] = self.basic_damage + self.bonus_damage_without_main_attribute + damage_from_attribute
+        self.status[
+            'Lowest Damage'] = self.basic_lowest_damage + self.bonus_damage_without_main_attribute + damage_from_attribute
+        self.status[
+            'Highest Damage'] = self.basic_highest_damage + self.bonus_damage_without_main_attribute + damage_from_attribute
         self.status["Max HP"] = self.basic_hit_point + self.status["Strength"] * 20 \
                                 + self.bonus_hit_point_without_strength
         self.status["Armor"] = self.basic_armor + 0.16 * self.status["Agility"] + self.bonus_armor_without_agility
@@ -464,7 +468,7 @@ class Hero:
 
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
 
-    def main_skill_feast(self):
+    def learn_main_skill_feast(self):
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
 
     def learn_main_skill_blade_dance(self):
@@ -473,8 +477,12 @@ class Hero:
         # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
         self.critical_list["Blade Dance"] = [15 + 5 * skill_level, 180]
 
-        # Coup de Grace
+    def learn_main_skill_jingu_mastery(self):
+        skill_level = min(4, (self.hero_level + 1) // 2)
+        self.main_skill_list["JinGu Mastery"] = skill_level
+        self.other_positive_effect["JinGu Mastery Attack Times"] = -5
 
+    # Coup de Grace
     def learn_main_skill_coup_de_grace(self):
         if self.hero_level < 6:
             return None
@@ -506,7 +514,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     :param defend_hero: the hero who defends the attack
     :return: damage_list: the list of the attack result
     """
-    attack_damage = attack_hero.status['Damage']
+    attack_damage = random.uniform(attack_hero.status['Lowest Damage'], attack_hero.status['Highest Damage'])
     # evadable physical damage, evadable magic damage, evadable true damage
     # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
     # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
@@ -569,6 +577,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
         attack_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
         return attack_result
 
+
+
     highest_critical_rate = 100
 
     # attack might be critical
@@ -613,6 +623,22 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     damage_list[9] = life_steal_amount
     damage_list[10] = normal_attack_damage
     attack_result = damage_calculation(attack_hero, defend_hero, damage_list, life_steal_rate, show_log_or_not)
+
+    if "JinGu Mastery" in attack_hero.main_skill_list.keys():
+        attack_hero.other_positive_effect["JinGu Mastery Attack Times"] += 1
+        if attack_hero.other_positive_effect["JinGu Mastery Attack Times"] == -1:
+            attack_hero.other_positive_effect["JinGu Mastery Attack Times"] = 1
+            bonus_jingu_damage = attack_hero.main_skill_list["JinGu Mastery"] * 30 + 10
+            attack_hero.status['Lowest Damage'] += bonus_jingu_damage
+            attack_hero.status['Highest Damage'] += bonus_jingu_damage
+            attack_hero.life_steal_rate += 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+        if attack_hero.other_positive_effect["JinGu Mastery Attack Times"] == 5:
+            attack_hero.other_positive_effect["JinGu Mastery Attack Times"] = -5
+            bonus_jingu_damage = attack_hero.main_skill_list["JinGu Mastery"] * 30 + 10
+            attack_hero.status['Lowest Damage'] -= bonus_jingu_damage
+            attack_hero.status['Highest Damage'] -= bonus_jingu_damage
+            attack_hero.life_steal_rate -= 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+
 
     return attack_result
 
@@ -709,7 +735,7 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
 
 def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False):
     if "Moment of Courage" in defend_hero.main_skill_list.keys():
-        if random.randint(1,100) <= 25:
+        if random.randint(1, 100) <= 25:
             life_steal_rate = 10 + 45
             defend_hero.life_steal_rate += life_steal_rate
             attack(defend_hero, attack_hero, show_log_or_not)
@@ -818,7 +844,8 @@ class HeroMonkeyKing(Hero):
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
-        self.basic_damage = 31
+        self.basic_lowest_damage = 29
+        self.basic_highest_damage = 33
         self.basic_armor = 2
         self.basic_hit_point = 164
         self.basic_regeneration = 1
@@ -837,7 +864,8 @@ class LifeStealer(Hero):
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 120
-        self.basic_damage = 25
+        self.basic_lowest_damage = 22
+        self.basic_highest_damage = 28
         self.basic_armor = 1
         self.basic_hit_point = 262
         self.basic_regeneration = 0.25
@@ -856,7 +884,8 @@ class TreantProtector(Hero):
         self.name = name
         self.base_attack_time = 1.9
         self.basic_attack_speed = 100
-        self.basic_damage = 66
+        self.basic_lowest_damage = 62
+        self.basic_highest_damage = 70
         self.basic_armor = -1
         self.basic_hit_point = 262
         self.basic_regeneration = 0.25
@@ -875,7 +904,8 @@ class BountyHunter(Hero):
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
-        self.basic_damage = 34
+        self.basic_lowest_damage = 30
+        self.basic_highest_damage = 38
         self.basic_armor = 4
         self.basic_hit_point = 160
         self.basic_regeneration = 1.25
@@ -888,7 +918,7 @@ class BountyHunter(Hero):
 
 
 if __name__ == "__main__":
-    monkey_king_1 = HeroMonkeyKing(hero_level=1, name="WHN")
+    monkey_king_1 = BountyHunter(hero_level=1, name="WHN")
     monkey_king_2 = LifeStealer(hero_level=1, name="WBH")
 
     duel(monkey_king_1, monkey_king_2, True)
