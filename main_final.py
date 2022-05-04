@@ -307,27 +307,28 @@ class Hero:
                     list_max[i] = max_level
                     skill_book_list[i] = 0
                     count += 1
+
         if list_result[0] > 0:
             self.learn_skill_attribute_bonus(list_result[0])
-        elif list_result[1] > 0:
+        if list_result[1] > 0:
             self.learn_skill_corruption(list_result[1])
-        elif list_result[2] > 0:
+        if list_result[2] > 0:
             self.learn_skill_armor_bonus(list_result[2])
-        elif list_result[3] > 0:
+        if list_result[3] > 0:
             self.learn_skill_thorn_armor(list_result[3])
-        elif list_result[4] > 0:
+        if list_result[4] > 0:
             self.learn_skill_curse_of_death(list_result[4])
-        elif list_result[5] > 0:
+        if list_result[5] > 0:
             self.learn_skill_evasion(list_result[5])
-        elif list_result[6] > 0:
+        if list_result[6] > 0:
             self.learn_skill_fire(list_result[6])
-        elif list_result[7] > 0:
+        if list_result[7] > 0:
             self.learn_skill_smash(list_result[7])
-        elif list_result[8] > 0:
+        if list_result[8] > 0:
             self.learn_skill_damage_bonus(list_result[8])
-        elif list_result[9] > 0:
+        if list_result[9] > 0:
             self.learn_skill_life_steal(list_result[9])
-        elif list_result[10] > 0:
+        if list_result[10] > 0:
             self.learn_skill_crushing(list_result[10])
 
     def equip_monkey_king_bar(self, equip_or_take_off: int) -> None:
@@ -448,7 +449,7 @@ class Hero:
         actual_amount = round(life_steal_amount)
         return actual_amount
 
-    def regenerate_and_curse(self, time_second: float, show_all_the_details=False) -> None:
+    def regenerate_and_curse(self, time_second: float, show_all_the_details=False) -> int:
         """
         Calculate hit point regenerate during time period.
 
@@ -587,7 +588,9 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
                     evaded = True
                     break
     if evaded:
-        attack_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not)
+        if show_log_or_not:
+            print("{} evaded successfully.".format(defend_hero.name))
+        attack_result = damage_calculation(attack_hero, defend_hero, damage_list, show_log_or_not, show_all_the_details)
         return attack_result
 
     highest_critical_rate = 100
@@ -605,7 +608,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
     evadable_physical_damage += normal_attack_damage
 
     if 'Crushing' in attack_hero.skill_list.keys():
-        if random.randint(1, 100) <= 20:
+        if random.randint(1, 100) <= 15:
             skill_level = attack_hero.skill_list['Crushing']
             crush_damage = 50 + 50 * skill_level  # Basic damage
             crush_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
@@ -654,7 +657,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
             bonus_jingu_life_steal = 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
             attack_hero.life_steal_rate += bonus_jingu_life_steal
             if show_all_the_details:
-                print("{} triggered Jingu Mastery, damage bonus {}, life steal rate bonus {}%."
+                print("{} triggered Jingu Mastery, damage bonus {}, life steal rate bonus {}%.\n"
                       .format(attack_hero.name, bonus_jingu_damage, bonus_jingu_life_steal))
         if attack_hero.other_positive_effect["JinGu Mastery Attack Times"] == 5:
             attack_hero.other_positive_effect["JinGu Mastery Attack Times"] = -5
@@ -664,7 +667,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
             bonus_jingu_life_steal = 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
             attack_hero.life_steal_rate -= bonus_jingu_life_steal
             if show_all_the_details:
-                print("{}'s Jingu Mastery ends, lose damage bonus {}, lose life steal rate bonus {}%."
+                print("{}'s Jingu Mastery ends, lose damage bonus {}, lose life steal rate bonus {}%.\n"
                       .format(attack_hero.name, bonus_jingu_damage, bonus_jingu_life_steal))
 
     return attack_result
@@ -689,12 +692,14 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
     attacker_taken_damage = 0
     defender_taken_damage = 0
     life_steal_amount = damage_list[9]
-    if "Fire" in attack_hero.skill_list.keys():
+    if "Fire!" in attack_hero.skill_list.keys():
         damage_amount, normal_attack_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
                                                                                              damage_list[10])
         defender_taken_damage += damage_amount
         if show_all_the_details:
+            # normal_attack_damage_without_fire = defend_hero.taken_physical_damage(damage_list[10])
             print("{} triggered Fire!, ignore armor, normal attack damage {}.".format(attack_hero.name, damage_amount))
+            # print("Without Fire!, the normal attack damage will be {}".format(normal_attack_damage_without_fire))
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3] - damage_list[10])
     else:
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
@@ -782,7 +787,7 @@ def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_
             defend_hero.life_steal_rate -= life_steal_rate
 
 
-def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details=False):
+def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details=False, show_regenerate_rs=False):
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
 
@@ -804,8 +809,8 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
         if hero_1_attack_time_axis < hero_2_attack_time_axis:
             # before attack, calculate regeneration and curse damage
             time = hero_1_attack_time_axis - last_hit_time_axis
-            hero_1.regenerate_and_curse(time)
-            hero_2.regenerate_and_curse(time)
+            hero_1.regenerate_and_curse(time, show_regenerate_rs)
+            hero_2.regenerate_and_curse(time, show_regenerate_rs)
             last_hit_time_axis = hero_1_attack_time_axis
 
             # attack
@@ -816,8 +821,8 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
 
         elif hero_1_attack_time_axis > hero_2_attack_time_axis:
             time = hero_2_attack_time_axis - last_hit_time_axis
-            hero_1.regenerate_and_curse(time)
-            hero_2.regenerate_and_curse(time)
+            hero_1.regenerate_and_curse(time, show_regenerate_rs)
+            hero_2.regenerate_and_curse(time, show_regenerate_rs)
             last_hit_time_axis = hero_2_attack_time_axis
             attack(hero_2, hero_1, show_log_or_not, show_all_the_details)
             trigger_moment_of_courage(hero_2, hero_1, show_log_or_not, show_all_the_details)
@@ -825,8 +830,8 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
         else:
             # attack at same time, randomly decide sequence of attack
             time = hero_1_attack_time_axis - last_hit_time_axis
-            hero_1.regenerate_and_curse(time)
-            hero_2.regenerate_and_curse(time)
+            hero_1.regenerate_and_curse(time, show_regenerate_rs)
+            hero_2.regenerate_and_curse(time, show_regenerate_rs)
             last_hit_time_axis = hero_2_attack_time_axis
             if random.randint(0, 1) == 0:
                 attack(hero_1, hero_2, show_log_or_not, show_all_the_details)
@@ -863,7 +868,7 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_detail
             affected_hero.status["Physical Resistance"] = 1 - (0.052 * affected_hero.status["Armor"]) / (
                     0.9 + 0.048 * abs(affected_hero.status["Armor"]))
             if show_all_the_details:
-                print("{} triggered Armor Corruption.".format(owner_hero.name))
+                print("{} triggered Armor Corruption.\n".format(owner_hero.name))
 
 
 def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
@@ -878,7 +883,7 @@ def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=Fal
             affected_hero.other_negative_effect["Curse Damage"] = owner_hero.other_positive_effect[
                 "Curse Damage"]
             if show_all_the_details:
-                print("{}'s Curse of Death begin to take effects.".format(owner_hero.name))
+                print("{}'s Curse of Death begin to take effects.\n".format(owner_hero.name))
 
 
 @dataclass
@@ -962,10 +967,15 @@ class BountyHunter(Hero):
 
 
 if __name__ == "__main__":
-    monkey_king_1 = HeroMonkeyKing(hero_level=1)
-    life_stealer = LifeStealer(hero_level=1)
+    hero_1 = HeroMonkeyKing(hero_level=1)
+    hero_2 = LifeStealer(hero_level=1)
 
-    monkey_king_1.learn_main_skill_jingu_mastery()
-    life_stealer.learn_main_skill_moment_of_courage()
+    hero_1.get_random_skill_book(20)
+    hero_2.get_random_skill_book(20)
 
-    duel(monkey_king_1, life_stealer, True, True)
+    duel(hero_1, hero_2, True, True, False)
+
+    print("Skill List:")
+    print("{}: {}".format(hero_1.name, hero_1.skill_list.keys()))
+    print("{}: {}".format(hero_2.name, hero_2.skill_list.keys()))
+    print(len(hero_1.skill_list.keys()))
