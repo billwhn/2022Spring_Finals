@@ -505,11 +505,12 @@ class Hero:
         self.main_skill_list["Moment of Courage"] = skill_level
 
 
-def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
+def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all_the_details=False) -> list:
     """
     One hero attacks another hero once.
 
     :param show_log_or_not: weather or not show the details of attack in log
+    :param show_all_the_details: weather or not show the details of attack damage composition in log
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends the attack
     :return: damage_list: the list of the attack result
@@ -549,8 +550,11 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
     if 'Smash' in attack_hero.skill_list.keys():
         if random.randint(1, 100) <= 20:
             skill_level = attack_hero.skill_list['Smash']
-            un_evadable_physical_damage += 80 + 20 * skill_level  # Basic damage
-            un_evadable_physical_damage += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
+            smash_damage = 80 + 20 * skill_level  # Basic damage
+            smash_damage += 0.01 * skill_level * defend_hero.status["Max HP"]  # decided by enemy max HP
+            un_evadable_physical_damage += smash_damage
+            if show_all_the_details:
+                print("{} triggered Smash, deal damage {}".format(attack_hero.name, smash_damage))
 
     # calculate if this attack is evaded
     for key in attack_hero.status["Pierce"].keys():
@@ -558,6 +562,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             pierce = True
             if key == "MKB":
                 # un-evadable magic damage from MKB
+                if show_all_the_details:
+                    print("{} triggered MKB, deal damage {}".format(attack_hero.name, 70))
                 un_evadable_magic_damage += 70
 
     damage_list[3] = un_evadable_physical_damage
@@ -585,27 +591,38 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
         for critical_skill in attack_hero.critical_list.keys():
             if random.randint(1, 100) <= attack_hero.critical_list[critical_skill][0]:
                 highest_critical_rate = max(highest_critical_rate, attack_hero.critical_list[critical_skill][1])
-
+    if show_all_the_details:
+        if highest_critical_rate != 100:
+            print("{} triggered critical, critical rate {}".format(attack_hero.name, highest_critical_rate))
     normal_attack_damage += highest_critical_rate / 100 * attack_damage
     evadable_physical_damage += normal_attack_damage
 
     if 'Crushing' in attack_hero.skill_list.keys():
         if random.randint(1, 100) <= 20:
             skill_level = attack_hero.skill_list['Crushing']
-            evadable_true_damage += 50 + 50 * skill_level  # Basic damage
-            evadable_true_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
+            crush_damage = 50 + 50 * skill_level  # Basic damage
+            crush_damage += 0.5 * skill_level * attack_hero.status["Strength"]  # decided by enemy max HP
+            evadable_true_damage += crush_damage
+            if show_all_the_details:
+                print("{} triggered Crushing, deal damage {}".format(attack_hero.name, crush_damage))
 
     if "Feast" in attack_hero.main_skill_list.keys():
         # Feast cause evadable physical damage
         feast_life_steal = (0.01 + 0.006 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
         feast_extra_damage = (0.004 + 0.002 * attack_hero.main_skill_list["Feast"]) * defend_hero.status["Max HP"]
         life_steal_amount += feast_life_steal
+        if show_all_the_details:
+            print("{} triggered Feast, deal damage {}, life steal amount {}."
+                  .format(attack_hero.name, feast_extra_damage, feast_life_steal))
         evadable_physical_damage += feast_extra_damage
 
     if "Life Steal" in attack_hero.skill_list.keys():
         # Life Steal only consider actual damage from normal attack (affected by defend hero's physical resistance)
         if random.randint(1, 100) <= 30:
-            life_steal_rate += attack_hero.skill_list["Life Steal"] * 5 + 20
+            life_steal_bonus = attack_hero.skill_list["Life Steal"] * 5 + 20
+            life_steal_rate += life_steal_bonus
+            if show_all_the_details:
+                print("{} triggered Life Steal, life steal rate bonus {}%.".format(attack_hero.name, life_steal_bonus))
 
     damage_list[0] = evadable_physical_damage
     damage_list[1] = evadable_magic_damage
@@ -617,7 +634,8 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
 
     damage_list[9] = life_steal_amount
     damage_list[10] = normal_attack_damage
-    attack_result = damage_calculation(attack_hero, defend_hero, damage_list, life_steal_rate, show_log_or_not)
+    attack_result = damage_calculation(attack_hero, defend_hero, damage_list, life_steal_rate,
+                                       show_log_or_not, show_all_the_details)
 
     if "JinGu Mastery" in attack_hero.main_skill_list.keys():
         attack_hero.other_positive_effect["JinGu Mastery Attack Times"] += 1
@@ -626,23 +644,30 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False) -> list:
             bonus_jingu_damage = attack_hero.main_skill_list["JinGu Mastery"] * 30 + 10
             attack_hero.status['Lowest Damage'] += bonus_jingu_damage
             attack_hero.status['Highest Damage'] += bonus_jingu_damage
-            attack_hero.life_steal_rate += 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+            bonus_jingu_life_steal = 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+            attack_hero.life_steal_rate += bonus_jingu_life_steal
+            if show_all_the_details:
+                print("{} triggered Jingu Mastery, damage bonus {}, life steal rate bonus {}%."
+                      .format(attack_hero.name, bonus_jingu_damage, bonus_jingu_life_steal))
         if attack_hero.other_positive_effect["JinGu Mastery Attack Times"] == 5:
             attack_hero.other_positive_effect["JinGu Mastery Attack Times"] = -5
             bonus_jingu_damage = attack_hero.main_skill_list["JinGu Mastery"] * 30 + 10
             attack_hero.status['Lowest Damage'] -= bonus_jingu_damage
             attack_hero.status['Highest Damage'] -= bonus_jingu_damage
-            attack_hero.life_steal_rate -= 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+            bonus_jingu_life_steal = 15 * attack_hero.main_skill_list["JinGu Mastery"] + 10
+            attack_hero.life_steal_rate -= bonus_jingu_life_steal
+            if show_all_the_details:
+                print("{}'s Jingu Mastery ends, lose damage bonus {}, lose life steal rate bonus {}%."
+                      .format(attack_hero.name, bonus_jingu_damage, bonus_jingu_life_steal))
 
     return attack_result
 
 
 def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
-                       life_steal_rate=0, show_log_or_not=False) -> list:
+                       life_steal_rate=0, show_log_or_not=False, show_all_the_details=False) -> list:
     """
     Calculate various damage caused by an attack action.
 
-    :param show_log_or_not: whether show details of attack result in log
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends
     :param damage_list: the damage caused an attack action, before
@@ -650,6 +675,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
         # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
         # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
     :param life_steal_rate: this attack's attached life steal rate
+    :param show_log_or_not: whether show details of attack result in log
+    :param show_all_the_details: whether show details of attack result in log
     :return: a list of total damage taken by attack_hero and defend_hero
     """
     attacker_taken_damage = 0
@@ -659,6 +686,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
         damage_amount, normal_attack_resistance = calculate_physical_damage_under_skill_fire(attack_hero, defend_hero,
                                                                                              damage_list[10])
         defender_taken_damage += damage_amount
+        if show_all_the_details:
+            print("{} triggered Fire!, ignore armor, normal attack damage {}.".format(attack_hero.name, damage_amount))
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3] - damage_list[10])
     else:
         defender_taken_damage += defend_hero.taken_physical_damage(damage_list[0] + damage_list[3])
@@ -666,17 +695,23 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
 
     actual_normal_attack_damage = damage_list[10] * normal_attack_resistance
     life_steal_amount += actual_normal_attack_damage * life_steal_rate / 100
+    if show_all_the_details and life_steal_amount != 0:
+        print("{}'s total life steal: {}.".format(attack_hero.name, life_steal_amount))
 
     if "Thorn Armor" in defend_hero.skill_list.keys():
-        damage_reflection = 0
-        damage_reflection += actual_normal_attack_damage * (
+        damage_reflection = actual_normal_attack_damage * (
             defend_hero.other_positive_effect["Physical Damage Reflection"]) / 100
         damage_list[6] += damage_reflection
+        if show_all_the_details:
+            print("{} triggered Thorn Armor, reflected damage {}.".format(defend_hero.name, damage_reflection))
 
     # curse will reduce life steal amount
     if "Curse of Death" in defend_hero.skill_list.keys() and life_steal_amount != 0:
         life_steal_amount = life_steal_amount * (
                 100 - defend_hero.other_positive_effect["Curse Reg Reduction"]) / 100
+        if show_all_the_details:
+            print("{} triggered Curse of Death, reducing actual enemy life steal to {}.".
+                  format(defend_hero.name, life_steal_amount))
 
     defender_taken_damage += defend_hero.taken_magical_damage(damage_list[1] + damage_list[4])
     defender_taken_damage += defend_hero.taken_true_damage(damage_list[2] + damage_list[5])
@@ -729,16 +764,18 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
 
 
-def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False):
+def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all_the_details=False):
     if "Moment of Courage" in defend_hero.main_skill_list.keys():
         if random.randint(1, 100) <= 25:
+            if show_all_the_details:
+                print("{} Moment of Courage Triggerd".format(defend_hero.name))
             life_steal_rate = 10 + 45
             defend_hero.life_steal_rate += life_steal_rate
-            attack(defend_hero, attack_hero, show_log_or_not)
+            attack(defend_hero, attack_hero, show_log_or_not, show_all_the_details)
             defend_hero.life_steal_rate -= life_steal_rate
 
 
-def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
+def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details=False):
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
 
@@ -765,8 +802,8 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
             last_hit_time_axis = hero_1_attack_time_axis
 
             # attack
-            attack(hero_1, hero_2, show_log_or_not)
-            trigger_moment_of_courage(hero_1, hero_2, show_log_or_not)
+            attack(hero_1, hero_2, show_log_or_not, show_all_the_details)
+            trigger_moment_of_courage(hero_1, hero_2, show_log_or_not, show_all_the_details)
 
             hero_1_attacked = True
 
@@ -775,8 +812,8 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
             hero_1.regenerate_and_curse(time)
             hero_2.regenerate_and_curse(time)
             last_hit_time_axis = hero_2_attack_time_axis
-            attack(hero_2, hero_1, show_log_or_not)
-            trigger_moment_of_courage(hero_2, hero_1, show_log_or_not)
+            attack(hero_2, hero_1, show_log_or_not, show_all_the_details)
+            trigger_moment_of_courage(hero_2, hero_1, show_log_or_not, show_all_the_details)
             hero_2_attacked = True
         else:
             # attack at same time, randomly decide sequence of attack
@@ -785,12 +822,12 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False):
             hero_2.regenerate_and_curse(time)
             last_hit_time_axis = hero_2_attack_time_axis
             if random.randint(0, 1) == 0:
-                attack(hero_1, hero_2, show_log_or_not)
-                trigger_moment_of_courage(hero_1, hero_2, show_log_or_not)
+                attack(hero_1, hero_2, show_log_or_not, show_all_the_details)
+                trigger_moment_of_courage(hero_1, hero_2, show_log_or_not, show_all_the_details)
                 hero_1_attacked = True
             else:
-                attack(hero_2, hero_1, show_log_or_not)
-                trigger_moment_of_courage(hero_2, hero_1, show_log_or_not)
+                attack(hero_2, hero_1, show_log_or_not, show_all_the_details)
+                trigger_moment_of_courage(hero_2, hero_1, show_log_or_not, show_all_the_details)
                 hero_2_attacked = True
 
         if hero_1.status["Current HP"] <= 0 or hero_2.status["Current HP"] <= 0:
@@ -915,8 +952,9 @@ class BountyHunter(Hero):
 
 if __name__ == "__main__":
     monkey_king_1 = HeroMonkeyKing(hero_level=1)
-    monkey_king_2 = LifeStealer(hero_level=1)
+    life_stealer = LifeStealer(hero_level=1)
 
     monkey_king_1.learn_main_skill_jingu_mastery()
+    life_stealer.learn_main_skill_moment_of_courage()
 
-    duel(monkey_king_1, monkey_king_2, True)
+    duel(monkey_king_1, life_stealer, True)
