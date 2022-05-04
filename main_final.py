@@ -448,21 +448,28 @@ class Hero:
         actual_amount = round(life_steal_amount)
         return actual_amount
 
-    def regenerate_and_curse(self, time_second: float) -> None:
+    def regenerate_and_curse(self, time_second: float, show_all_the_details=False) -> None:
         """
         Calculate hit point regenerate during time period.
 
         :param time_second: how mang seconds have passed
+        :param show_all_the_details: show details of regenerate and damage in detail or not
         :return: None
         """
         regenerate_hp = self.status["Regeneration"] * time_second
+        if show_all_the_details:
+            print("{} regenerates HP {}".format(self.name, regenerate_hp))
 
         if "Curse of Death" in self.other_negative_effect.keys():
             # other_negative_effect["Curse"] : level of curse
             # other_negative_effect["Curse Reg Reduction"] : how many percent regenerate reduced
             # other_negative_effect["Curse Damage"] : curse damage per second
             regenerate_hp = (100 - self.other_negative_effect["Curse Reg Reduction"]) / 100 * regenerate_hp
-            regenerate_hp -= self.other_negative_effect["Curse Damage"] * time_second
+            curse_damage = self.other_negative_effect["Curse Damage"] * time_second
+            if show_all_the_details:
+                print("{} Affected by Curse of Death, actual regenerates HP {}, lose {} HP due to curse."
+                      .format(self.name, regenerate_hp, curse_damage))
+            regenerate_hp -= curse_damage
 
         self.status["Current HP"] = min(self.status["Max HP"], self.status["Current HP"] + regenerate_hp)
         regenerate_hp = round(regenerate_hp)
@@ -727,11 +734,11 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
 
 
 def show_attack_log(attack_hero, defend_hero, damage_list: list):
-    print("\n{} attacks {}, caused {} damage, get {} counter damage, regenerates {} by life steal."
+    print("{} attacks {}, caused {} damage, get {} counter damage, regenerates {} by life steal."
           .format(attack_hero.name, defend_hero.name,
                   round(damage_list[1]), round(damage_list[0]), round(damage_list[2])))
-    print("{} HP left: {}\t\t\t{} HP left {}".format(attack_hero.name, round(attack_hero.status["Current HP"]),
-                                                     defend_hero.name, round(defend_hero.status["Current HP"])))
+    print("{} HP left: {}\t\t\t{} HP left {}\n".format(attack_hero.name, round(attack_hero.status["Current HP"]),
+                                                       defend_hero.name, round(defend_hero.status["Current HP"])))
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
@@ -768,8 +775,8 @@ def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_
     if "Moment of Courage" in defend_hero.main_skill_list.keys():
         if random.randint(1, 100) <= 25:
             if show_all_the_details:
-                print("{} Moment of Courage Triggerd".format(defend_hero.name))
-            life_steal_rate = 10 + 45
+                print("{} Triggerd Moment of Courage ".format(defend_hero.name))
+            life_steal_rate = 10 * defend_hero.main_skill_list["Moment of Courage"] + 45
             defend_hero.life_steal_rate += life_steal_rate
             attack(defend_hero, attack_hero, show_log_or_not, show_all_the_details)
             defend_hero.life_steal_rate -= life_steal_rate
@@ -782,10 +789,10 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
     hero_1.calculate_status()
     hero_2.calculate_status()
 
-    corruption_status(hero_1, hero_2)
-    corruption_status(hero_2, hero_1)
-    curse_status(hero_1, hero_2)
-    curse_status(hero_2, hero_1)
+    corruption_status(hero_1, hero_2, show_all_the_details)
+    corruption_status(hero_2, hero_1, show_all_the_details)
+    curse_status(hero_1, hero_2, show_all_the_details)
+    curse_status(hero_2, hero_1, show_all_the_details)
 
     hero_1_attack_time_axis = hero_1.status["Attack Interval"]
     hero_2_attack_time_axis = hero_2.status["Attack Interval"]
@@ -843,7 +850,7 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
     return hero_1, hero_2
 
 
-def corruption_status(owner_hero: Hero, affected_hero: Hero) -> None:
+def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
     if "Corruption" in owner_hero.skill_list.keys():
@@ -855,9 +862,11 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero) -> None:
             affected_hero.status["Armor"] -= affected_hero.other_negative_effect["Reduced Armor"]
             affected_hero.status["Physical Resistance"] = 1 - (0.052 * affected_hero.status["Armor"]) / (
                     0.9 + 0.048 * abs(affected_hero.status["Armor"]))
+            if show_all_the_details:
+                print("{} triggered Armor Corruption.".format(owner_hero.name))
 
 
-def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
+def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
     # only one Curse of Death will take effect
     # affected by two enemy heroes both learned Curse of Death, only the highest level corruption takes effect
     if "Curse of Death" in owner_hero.skill_list.keys():
@@ -868,6 +877,8 @@ def curse_status(owner_hero: Hero, affected_hero: Hero) -> None:
                 "Curse Reg Reduction"]
             affected_hero.other_negative_effect["Curse Damage"] = owner_hero.other_positive_effect[
                 "Curse Damage"]
+            if show_all_the_details:
+                print("{}'s Curse of Death begin to take effects.".format(owner_hero.name))
 
 
 @dataclass
@@ -957,4 +968,4 @@ if __name__ == "__main__":
     monkey_king_1.learn_main_skill_jingu_mastery()
     life_stealer.learn_main_skill_moment_of_courage()
 
-    duel(monkey_king_1, life_stealer, True)
+    duel(monkey_king_1, life_stealer, True, True)
