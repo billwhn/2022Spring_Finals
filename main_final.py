@@ -1183,7 +1183,7 @@ def hero_initialize(hero_model: str, hero_level=1, hero_name=''):
 
 def aggregate_analyze(loop_times: int, hero_level: int,
                       hero_1_model: str, hero_2_model: str, hero_1_name: str, hero_2_name: str,
-                      number_of_skill_books: int, number_of_main_skills: int, items_dict: dict,
+                      number_of_skill_books: int, number_of_main_skills: int, ultimate_skill: bool, items_dict: dict,
                       show_loop_aggregate_result=True, show_skill_list_each_time=False, show_log_or_not=False,
                       show_all_the_details=False, show_regenerate_rs=False):
     winning_count = {}
@@ -1214,8 +1214,8 @@ def aggregate_analyze(loop_times: int, hero_level: int,
         hero_2.get_random_skill_book(number_of_skill_books)
 
         if number_of_main_skills != 0:
-            hero_1.roll_main_skill(number_of_main_skills)
-            hero_2.roll_main_skill(number_of_main_skills)
+            hero_1.roll_main_skill(number_of_main_skills, ultimate_skill)
+            hero_2.roll_main_skill(number_of_main_skills, ultimate_skill)
 
         duel(hero_1, hero_2, show_log_or_not, show_all_the_details, show_regenerate_rs)
 
@@ -1344,20 +1344,25 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
 if __name__ == "__main__":
     item_dict = {}
 
-    aggregate_analyze(1000, 6, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 20, 0, item_dict,
+    aggregate_analyze(1000, 6, "MonkeyKing", "MonkeyKing",
+                      "Monkey King 1st", "King Monkey 2nd", 20, 0, False, item_dict,
                       True, False, False, False, False)
 
-    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
+                      "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
                       True, False, False, False, False)
 
     item_dict["MKB"] = 1
-    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
+                      "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
                       True, False, False, False, False)
 
     item_dict["Heart"] = 1
-    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 60, 0, item_dict,
+    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
+                      "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
                       True, False, False, False, False)
 
     item_dict["Heart"] = 3
-    aggregate_analyze(1000, 25, "MonkeyKing", "MonkeyKing", "Monkey King 1st", "King Monkey 2nd", 120, 0, item_dict,
+    aggregate_analyze(1000, 25, "MonkeyKing", "MonkeyKing",
+                      "Monkey King 1st", "King Monkey 2nd", 120, 0, False, item_dict,
                       True, False, False, False, False)
