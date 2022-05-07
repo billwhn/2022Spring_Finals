@@ -573,12 +573,19 @@ class Hero:
         self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
         self.ultimate_skill = True
 
-    def roll_main_skill(self, amount_of_main_skill: int):
+    def roll_main_skill(self, amount_of_main_skill: int, learn_ultimate_or_not=False) -> None:
+        """
+        The hero will randomly learn certain amount of main skills.
+
+        :param amount_of_main_skill: how many main skills the hero will get
+        :param learn_ultimate_or_not: whether learn an ultimate skill or not (do not count in as amount_of_main_skill)
+        :return: None
+        """
         count = 0
         while True:
             if count == amount_of_main_skill:
                 break
-            randon_int = random.randint(1, 6)
+            randon_int = random.randint(1, 4)
             if randon_int == 1:
                 if "JinGu Mastery" not in self.main_skill_list.keys():
                     self.learn_main_skill_jingu_mastery()
@@ -592,25 +599,25 @@ class Hero:
                     self.learn_main_skill_blade_dance()
                     count += 1
             elif randon_int == 4:
-                if "Coup de Grace" not in self.main_skill_list.keys():
-                    self.learn_main_skill_coup_de_grace()
-                    count += 1
-            elif randon_int == 5:
                 if "Moment of Courage" not in self.main_skill_list.keys():
                     self.learn_main_skill_moment_of_courage()
                     count += 1
-            elif randon_int == 6:
+        if learn_ultimate_or_not:
+            randon_int = randon_int(1,2)
+            if randon_int == 1:
+                if "Coup de Grace" not in self.main_skill_list.keys():
+                    self.learn_main_skill_coup_de_grace()
+            elif randon_int == 2:
                 if "Grow" not in self.main_skill_list.keys():
                     self.learn_main_skill_grow()
-                    count += 1
 
 
 def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all_the_details=False) -> list:
     """
     One hero attacks another hero once.
 
-    :param show_log_or_not: weather or not show the details of attack in log
-    :param show_all_the_details: weather or not show the details of attack damage composition in log
+    :param show_log_or_not: whether show the details of attack result in log or not
+    :param show_all_the_details: whether show the details of attack damage composition in log or not
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends the attack
     :return: damage_list: the list of the attack result
@@ -772,13 +779,15 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
 
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends
-    :param damage_list: the damage caused an attack action, before
-        # evadable physical damage, evadable magic damage, evadable true damage
-        # un-evadable physical damage, un-evadable magic damage, un-evadable true damage
-        # self-taken physical damage (comes from skills like Thorn Armor), self-taken magic damage
+    :param damage_list: the damage caused by an attack action, before calculate physical and magic resistance
+                    [ evadable physical damage, evadable magic damage, evadable true damage,
+                      un-evadable physical damage, un-evadable magic damage, un-evadable true damage,
+                      reflected physical damage, reflected magic damage, reflected true damage,
+                      life steal amount, normal attack damage
+                    ]
     :param life_steal_rate: this attack's attached life steal rate
-    :param show_log_or_not: whether show details of attack result in log
-    :param show_all_the_details: whether show details of attack result in log
+    :param show_log_or_not: whether show the details of attack result in log or not
+    :param show_all_the_details: whether show the details of attack damage composition in log or not
     :return: a list of total damage taken by attack_hero and defend_hero
     """
     attacker_taken_damage = 0
@@ -830,7 +839,17 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
     return attack_result
 
 
-def show_attack_log(attack_hero, defend_hero, damage_list: list):
+def show_attack_log(attack_hero: Hero, defend_hero: Hero, damage_list: list):
+    """
+    Function used to show the damage result of an attack action.
+
+    :param attack_hero: the attacker hero
+    :param defend_hero: the defender hero
+    :param damage_list: the result of this attack [ Damage reflected to the attacker hero,
+                                                    Damage caused to the defender hero,
+                                                    Life Steal amount of the attacker hero]
+    :return: a list of total damage taken by attack_hero and defend_hero
+    """
     print("{} attacks {}, caused {} damage, get {} counter damage, regenerates {} by life steal."
           .format(attack_hero.name, defend_hero.name,
                   round(damage_list[1]), round(damage_list[0]), round(damage_list[2])))
@@ -839,7 +858,16 @@ def show_attack_log(attack_hero, defend_hero, damage_list: list):
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
-                                               physical_damage_amount: float) -> tuple:
+                                               physical_damage_amount: float) -> tuple(int, float):
+    """
+    This function calculates actual physical damage when affected by skill -Fire!- (Ignore armor).
+    -Fire!- only affects normal attack damage.
+
+    :param attack_hero: the attacker hero
+    :param defend_hero: the defender hero
+    :param physical_damage_amount: the amount of physical damage before calculating armor
+    :return: (actual physical amount, actual physical resistance regarding normal attack)
+    """
     if defend_hero.status["Armor"] > 0:
         actual_armor = defend_hero.status["Armor"] * (100 - attack_hero.other_positive_effect["Ignore Armor"]) / 100
     else:
@@ -868,7 +896,17 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
         return 0.8 + 0.2 * pierce_possibility_mkb(amount_of_mkb - 1)
 
 
-def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all_the_details=False):
+def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero,
+                              show_log_or_not=False, show_all_the_details=False) -> None:
+    """
+    To judge if main skill -Monment of Courage- is triggered.
+
+    :param attack_hero: the attacker hero
+    :param defend_hero: the defender hero
+    :param show_log_or_not: whether show the details of attack result in log or not
+    :param show_all_the_details: whether show the details of attack damage composition in log or not
+    :return: None
+    """
     if "Moment of Courage" in defend_hero.main_skill_list.keys():
         if random.randint(1, 100) <= 25:
             if show_all_the_details:
@@ -879,7 +917,18 @@ def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero, show_log_or_
             defend_hero.life_steal_rate -= life_steal_rate
 
 
-def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details=False, show_regenerate_rs=False):
+def duel(hero_1: Hero, hero_2: Hero,
+         show_log_or_not=False, show_all_the_details=False, show_regenerate_rs=False) -> tuple(Hero, Hero):
+    """
+    Let two heroes have a duel
+
+    :param hero_1: the first hero
+    :param hero_2: the second hero
+    :param show_log_or_not: whether show the details of attack result in log or not
+    :param show_all_the_details: whether show the details of attack damage composition in log or not
+    :param show_regenerate_rs: whether show the details of regeneration in log or not
+    :return: the two hero's status after the duel is over
+    """
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
 
@@ -951,6 +1000,14 @@ def duel(hero_1: Hero, hero_2: Hero, show_log_or_not=False, show_all_the_details
 
 
 def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
+    """
+    Let two heroes have a duel
+
+    :param owner_hero: the hero who learned skill -Corruption- (Reduce nearby enemy's armor)
+    :param affected_hero: the hero who is affected by the skill
+    :param show_all_the_details: whether show the details of being affected in log or not
+    :return: the two hero's status after the duel is over
+    """
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
     if "Corruption" in owner_hero.skill_list.keys():
@@ -983,6 +1040,9 @@ def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=Fal
 
 @dataclass
 class HeroMonkeyKing(Hero):
+    """
+    The hero model for Hero Monkey King
+    """
     def __init__(self, hero_level=1, name="Monkey King"):
         Hero.__init__(self)
         self.name = name
@@ -1005,6 +1065,9 @@ class HeroMonkeyKing(Hero):
 
 @dataclass
 class HeroLifeStealer(Hero):
+    """
+    The hero model for Hero LifeStealer
+    """
     def __init__(self, hero_level=1, name="LifeStealer"):
         Hero.__init__(self)
         self.name = name
