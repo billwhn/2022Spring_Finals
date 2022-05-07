@@ -48,7 +48,7 @@ class Hero:
 
     status: dict  # records hero's various real-time attributes like current HP
 
-    def __init__(self):
+    def __init__(self, hero_level=1):
         """
         Initiate function for all the heroes.
         """
@@ -69,7 +69,7 @@ class Hero:
         self.critical_list = {}
         self.status = {}
         self.main_skill_list = {}
-        self.hero_level = 1
+        self.hero_level = hero_level
         self.life_steal_rate = 0
         self.pierce = {}
         self.ultimate_skill = False
@@ -603,7 +603,7 @@ class Hero:
                     self.learn_main_skill_moment_of_courage()
                     count += 1
         if learn_ultimate_or_not:
-            randon_int = randon_int(1,2)
+            randon_int = randon_int(1, 2)
             if randon_int == 1:
                 if "Coup de Grace" not in self.main_skill_list.keys():
                     self.learn_main_skill_coup_de_grace()
@@ -1001,12 +1001,12 @@ def duel(hero_1: Hero, hero_2: Hero,
 
 def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
     """
-    Let two heroes have a duel
+    Update the status if a hero is being affect by skill -Corruption-.
 
     :param owner_hero: the hero who learned skill -Corruption- (Reduce nearby enemy's armor)
     :param affected_hero: the hero who is affected by the skill
     :param show_all_the_details: whether show the details of being affected in log or not
-    :return: the two hero's status after the duel is over
+    :return: None
     """
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
@@ -1024,6 +1024,14 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_detail
 
 
 def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
+    """
+    Update the status if a hero is being affect by skill -Curse of Death-.
+
+    :param owner_hero: the hero who learned skill -Curse of Death- (Reduce nearby enemy's armor)
+    :param affected_hero: the hero who is affected by the skill
+    :param show_all_the_details: whether show the details of being affected in log or not
+    :return: None
+    """
     # only one Curse of Death will take effect
     # affected by two enemy heroes both learned Curse of Death, only the highest level corruption takes effect
     if "Curse of Death" in owner_hero.skill_list.keys():
@@ -1044,7 +1052,7 @@ class HeroMonkeyKing(Hero):
     The hero model for Hero Monkey King
     """
     def __init__(self, hero_level=1, name="Monkey King"):
-        Hero.__init__(self)
+        Hero.__init__(self, hero_level)
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
@@ -1053,12 +1061,11 @@ class HeroMonkeyKing(Hero):
         self.basic_armor = 2
         self.basic_hit_point = 164
         self.basic_regeneration = 1
-        self.main_attribute = "Agility"  # Intelligence or Strength or Agility
+        self.main_attribute = "Agility"
         self.basic_strength = 15.2
         self.basic_agility = 18.3
         self.strength_level_growth = 2.8
         self.agility_level_growth = 3.7
-        self.hero_level = hero_level
 
         self.learn_main_skill_jingu_mastery()
 
@@ -1069,7 +1076,7 @@ class HeroLifeStealer(Hero):
     The hero model for Hero LifeStealer
     """
     def __init__(self, hero_level=1, name="LifeStealer"):
-        Hero.__init__(self)
+        Hero.__init__(self, hero_level)
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 120
@@ -1078,20 +1085,22 @@ class HeroLifeStealer(Hero):
         self.basic_armor = 1
         self.basic_hit_point = 262
         self.basic_regeneration = 0.25
-        self.main_attribute = "Strength"  # Intelligence or Strength or Agility
+        self.main_attribute = "Strength"
         self.basic_strength = 22.6
         self.basic_agility = 16.4
         self.strength_level_growth = 2.4
         self.agility_level_growth = 2.6
-        self.hero_level = hero_level
 
         self.learn_main_skill_feast()
 
 
 @dataclass
 class HeroTreantProtector(Hero):
+    """
+    The hero model for Hero Treant Protector
+    """
     def __init__(self, hero_level=1, name="Treant Protector"):
-        Hero.__init__(self)
+        Hero.__init__(self, hero_level)
         self.name = name
         self.base_attack_time = 1.9
         self.basic_attack_speed = 100
@@ -1100,18 +1109,20 @@ class HeroTreantProtector(Hero):
         self.basic_armor = -1
         self.basic_hit_point = 262
         self.basic_regeneration = 0.25
-        self.main_attribute = "Strength"  # Intelligence or Strength or Agility
+        self.main_attribute = "Strength"
         self.basic_strength = 21.6
         self.basic_agility = 13
         self.strength_level_growth = 3.4
         self.agility_level_growth = 2
-        self.hero_level = hero_level
 
 
 @dataclass
 class HeroBountyHunter(Hero):
+    """
+    The hero model for Hero Bounty Hunter
+    """
     def __init__(self, hero_level=1, name="Bounty Hunter"):
-        Hero.__init__(self)
+        Hero.__init__(self, hero_level)
         self.name = name
         self.base_attack_time = 1.7
         self.basic_attack_speed = 100
@@ -1120,15 +1131,22 @@ class HeroBountyHunter(Hero):
         self.basic_armor = 4
         self.basic_hit_point = 160
         self.basic_regeneration = 1.25
-        self.main_attribute = "Agility"  # Intelligence or Strength or Agility
+        self.main_attribute = "Agility"
         self.basic_strength = 17.5
         self.basic_agility = 18.4
         self.strength_level_growth = 2.5
         self.agility_level_growth = 2.6
-        self.hero_level = hero_level
 
 
 def hero_initialize(hero_model: str, hero_level=1, hero_name=''):
+    """
+    Creating a hero object according to the parameters.
+
+    :param hero_model: the name of the hero model
+    :param hero_level: the hero level, from 1 to 30
+    :param hero_name: the nickname for the hero object
+    :return: the hero model object
+    """
     if hero_model == 'MonkeyKing':
         if hero_name == '':
             return HeroMonkeyKing(hero_level=hero_level)
@@ -1254,12 +1272,6 @@ def aggregate_analyze(loop_times: int, hero_level: int,
 
         winning_count = update_dict_by_list(winning_count, skill_list)
 
-        # for skill in skill_list:
-        #     if skill in winning_count.keys():
-        #         winning_count[skill] += 1
-        #     else:
-        #         winning_count[skill] = 1
-
         def update_dict_by_list_only(dict_to_update, source_list, rival_list):
             for skill_name in source_list:
                 if skill_name not in rival_list:
@@ -1270,28 +1282,11 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             return dict_to_update
 
         winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
-        # for skill in skill_list:
-        #     if skill not in skill_list2:
-        #         if skill in winning_count_only.keys():
-        #             winning_count_only[skill] += 1
-        #         else:
-        #             winning_count_only[skill] = 1
 
         winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
-        # for skill in main_skill_list:
-        #     if skill in winning_count_main_skill.keys():
-        #         winning_count_main_skill[skill] += 1
-        #     else:
-        #         winning_count_main_skill[skill] = 1
 
         winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
                                                                  main_skill_list, main_skill_list2)
-        # for skill in main_skill_list:
-        #     if skill not in main_skill_list2:
-        #         if skill in winning_count_main_skill_only.keys():
-        #             winning_count_main_skill_only[skill] += 1
-        #         else:
-        #             winning_count_main_skill_only[skill] = 1
 
     if show_loop_aggregate_result:
         winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
@@ -1317,6 +1312,9 @@ def aggregate_analyze(loop_times: int, hero_level: int,
 
 
 def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int) -> None:
+    """
+    This function is used to print the result of the monte carlo simulation.
+    """
     print('\n{}{}{}'.format(' ' * ((90 - len(report_name)) // 2), report_name, ' ' * ((90 - len(report_name)) // 2)))
     print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurance{}Winner-Side/Total"
           .format(' ' * (25 - len('Skill Name')), ' ' * (15 - len('Win Fights')),
