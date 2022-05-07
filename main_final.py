@@ -858,7 +858,7 @@ def show_attack_log(attack_hero: Hero, defend_hero: Hero, damage_list: list):
 
 
 def calculate_physical_damage_under_skill_fire(attack_hero: Hero, defend_hero: Hero,
-                                               physical_damage_amount: float) -> tuple(int, float):
+                                               physical_damage_amount: float):
     """
     This function calculates actual physical damage when affected by skill -Fire!- (Ignore armor).
     -Fire!- only affects normal attack damage.
@@ -918,7 +918,7 @@ def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero,
 
 
 def duel(hero_1: Hero, hero_2: Hero,
-         show_log_or_not=False, show_all_the_details=False, show_regenerate_rs=False) -> tuple(Hero, Hero):
+         show_log_or_not=False, show_all_the_details=False, show_regenerate_rs=False):
     """
     Let two heroes have a duel
 
