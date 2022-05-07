@@ -1011,16 +1011,22 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_detail
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
     if "Corruption" in owner_hero.skill_list.keys():
-        if "Corruption" not in affected_hero.other_negative_effect.keys() \
-                or affected_hero.other_negative_effect["Corruption"] < owner_hero.skill_list["Corruption"]:
-            affected_hero.other_negative_effect["Corruption"] = owner_hero.skill_list["Corruption"]
-            affected_hero.other_negative_effect["Reduced Armor"] = owner_hero.other_positive_effect[
-                "Reduce Enemy Armor"]
-            affected_hero.status["Armor"] -= affected_hero.other_negative_effect["Reduced Armor"]
-            affected_hero.status["Physical Resistance"] = 1 - (0.052 * affected_hero.status["Armor"]) / (
-                    0.9 + 0.048 * abs(affected_hero.status["Armor"]))
-            if show_all_the_details:
-                print("{} triggered Armor Corruption.\n".format(owner_hero.name))
+        if "Corruption" in affected_hero.other_negative_effect.keys():
+            if affected_hero.other_negative_effect["Corruption"] >= owner_hero.skill_list["Corruption"]:
+                return None
+            else:
+                affected_hero.status["Armor"] += affected_hero.other_negative_effect["Reduced Armor"]
+        original_armor = affected_hero.status["Armor"]
+        affected_hero.other_negative_effect["Corruption"] = owner_hero.skill_list["Corruption"]
+        affected_hero.other_negative_effect["Reduced Armor"] = owner_hero.other_positive_effect[
+            "Reduce Enemy Armor"]
+        affected_hero.status["Armor"] -= affected_hero.other_negative_effect["Reduced Armor"]
+        affected_hero.status["Physical Resistance"] = 1 - (0.052 * affected_hero.status["Armor"]) / (
+                0.9 + 0.048 * abs(affected_hero.status["Armor"]))
+        if show_all_the_details:
+            print("{} triggered Armor Corruption.\n".format(owner_hero.name))
+            print("{}'s Armor decreased from {} to {}".format(affected_hero.name, original_armor,
+                                                              affected_hero.status["Armor"]))
 
 
 def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=False) -> None:
@@ -1051,6 +1057,7 @@ class HeroMonkeyKing(Hero):
     """
     The hero model for Hero Monkey King
     """
+
     def __init__(self, hero_level=1, name="Monkey King"):
         Hero.__init__(self, hero_level)
         self.name = name
@@ -1075,6 +1082,7 @@ class HeroLifeStealer(Hero):
     """
     The hero model for Hero LifeStealer
     """
+
     def __init__(self, hero_level=1, name="LifeStealer"):
         Hero.__init__(self, hero_level)
         self.name = name
@@ -1099,6 +1107,7 @@ class HeroTreantProtector(Hero):
     """
     The hero model for Hero Treant Protector
     """
+
     def __init__(self, hero_level=1, name="Treant Protector"):
         Hero.__init__(self, hero_level)
         self.name = name
@@ -1121,6 +1130,7 @@ class HeroBountyHunter(Hero):
     """
     The hero model for Hero Bounty Hunter
     """
+
     def __init__(self, hero_level=1, name="Bounty Hunter"):
         Hero.__init__(self, hero_level)
         self.name = name
