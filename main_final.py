@@ -5,53 +5,57 @@ import random
 @dataclass
 class Hero:
     """A super-class for heroes"""
-    name: str
+    name: str  # the nickname for the hero
 
-    base_attack_time: float
-    basic_attack_speed: int
-    basic_lowest_damage: int
-    basic_highest_damage: int
-    basic_armor: float
-    basic_hit_point: int
-    basic_regeneration: float
-    main_attribute: str  # Intelligence or Strength or Agility
+    base_attack_time: float  # affecting attack interval
+    basic_attack_speed: int  # affecting attack interval
+    basic_lowest_damage: int  # hero's attack damage has a range, the lowest number when hero is level 0
+    basic_highest_damage: int  # hero's attack damage has a range, the highest number when hero is level 0
+    basic_armor: float  # hero's armor at level 0, armor affects physical damage taken by the hero
+    basic_hit_point: int  # hero's HP at level 0
+    basic_regeneration: float  # hero's basic regeneration at level 0
+    main_attribute: str  # hero's main attribute, Intelligence or Strength or Agility
 
-    basic_strength: float
-    basic_agility: float
-    strength_level_growth: float
-    agility_level_growth: float
+    basic_strength: float  # hero's strength at level 0
+    basic_agility: float  # hero's agility at level 0
+    strength_level_growth: float  # the amount of strength the hero will get when grow one level
+    agility_level_growth: float  # the amount of agility the hero will get when grow one level
 
-    bonus_strength: int
-    bonus_agility: int
-    bonus_damage_without_main_attribute: int
+    bonus_strength: int  # hero's bonus strength comes from items and skills
+    bonus_agility: int  # hero's bonus agility comes from items and skills
+    bonus_damage_without_main_attribute: int  # hero's bonus damage comes from items and skills
+
     # there are more than 1 skill can grant evasion ability
     evasion_list: dict  # key: skill name, value: int, evasion possibility
 
-    bonus_attack_speed_without_agility: int
-    bonus_armor_without_agility: int
-    bonus_regeneration_without_strength: int
-    bonus_hit_point_without_strength: int
+    bonus_attack_speed_without_agility: int  # hero's bonus attack speed comes from items and skills
+    bonus_armor_without_agility: int  # hero's bonus armor comes from items and skills
+    bonus_regeneration_without_strength: int  # hero's bonus regeneration comes from items and skills
+    bonus_hit_point_without_strength: int  # hero's bonus HP comes from items and skills
 
-    skill_list: dict
-    attack_attachment: dict
-    other_positive_effect: dict
-    other_negative_effect: dict
+    skill_list: dict  # the sub skills that the hero has learned
+    attack_attachment: dict  # the attachment effects of the hero's normal attack may have
+    other_positive_effect: dict  # the positive buff that the hero has
+    other_negative_effect: dict  # the de-buff that the hero is taking
     # there are more than 1 skill can grant critical attack ability
     critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
-    main_skill_list: dict
+    main_skill_list: dict  # the main skills that the hero has learned
 
-    hero_level: int
-    life_steal_rate: int
-    pierce: dict
+    hero_level: int  # hero's level, between 1 ~ 30
+    life_steal_rate: int  # the life steal rate the hero has for each attack
+    pierce: dict  # the possibility of ignoring evasion
+    ultimate_skill: bool  # if the hero has learned ultimate skill or not
 
-    status: dict
+    status: dict  # records hero's various real-time attributes like current HP
 
     def __init__(self):
+        """
+        Initiate function for all the heroes.
+        """
         self.bonus_strength = 0
         self.bonus_agility = 0
         self.bonus_damage_without_main_attribute = 0
-        # there are more than 1 skill can grant evasion ability
-        self.evasion_list = {}  # key: skill name, value: int, evasion possibility
+        self.evasion_list = {}
 
         self.bonus_attack_speed_without_agility = 0
         self.bonus_armor_without_agility = 0
@@ -62,15 +66,21 @@ class Hero:
         self.attack_attachment = {}
         self.other_positive_effect = {}
         self.other_negative_effect = {}
-        # there are more than 1 skill can grant critical attack ability
-        self.critical_list = {}  # key: skill name, value: list, [possibility, critical rate]
+        self.critical_list = {}
         self.status = {}
         self.main_skill_list = {}
         self.hero_level = 1
         self.life_steal_rate = 0
         self.pierce = {}
+        self.ultimate_skill = False
 
-    def set_name(self, name):
+    def set_name(self, name: str) -> None:
+        """
+        Setting Hero Object's nickname.
+
+        :param name: hero's nickname
+        :return: None
+        """
         self.name = name
 
     def set_hero_level(self, hero_level: int) -> None:
@@ -82,7 +92,7 @@ class Hero:
         """
         self.hero_level = hero_level
 
-    def learn_skill_book(self, skill_name: str, qty_of_books: int):
+    def learn_skill_book(self, skill_name: str, qty_of_books: int) -> [int, int]:
         """
         This function is a common function when a skill book is consumed.
         This function determines how many levels the skill will improve.
@@ -90,8 +100,8 @@ class Hero:
         :param skill_name: the skill that this Skill Book is bounded to.
         :param qty_of_books: how many skill books -Attribute Bonus- are consumed
         :return: [original_level, new_level]
-                 original_level: how many levels this skill was before consuming the skill book(s);
-                 new_level: after consuming the skill book(s), the skill comes to which level
+                 original_level: the level of this skill before consuming the skill book(s);
+                 new_level: the level of this skill after consuming the skill book(s)
         """
         if skill_name in self.skill_list.keys():
             # learned before
@@ -105,7 +115,7 @@ class Hero:
             self.skill_list[skill_name] = new_level
             return [0, new_level]
 
-    def check_able_to_learn_skill_book(self, skill_name: str):
+    def check_able_to_learn_skill_book(self, skill_name: str) -> bool:
         """
         To judge if the hero can learn this Skill Book.
 
@@ -122,7 +132,7 @@ class Hero:
         else:
             return True
 
-    def learn_skill_attribute_bonus(self, qty_of_books: int):
+    def learn_skill_attribute_bonus(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Attribute Bonus-.
 
@@ -135,7 +145,7 @@ class Hero:
         self.bonus_strength += 5 * (new_level - original_level)
         self.bonus_agility += 5 * (new_level - original_level)
 
-    def learn_skill_evasion(self, qty_of_books: int):
+    def learn_skill_evasion(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Evasion-.
 
@@ -147,7 +157,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Evasion", qty_of_books)
         self.evasion_list["Evasion"] = 30 + 5 * new_level
 
-    def learn_skill_corruption(self, qty_of_books: int):
+    def learn_skill_corruption(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Corruption-.
 
@@ -159,7 +169,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Corruption", qty_of_books)
         self.other_positive_effect["Reduce Enemy Armor"] = 2 * new_level
 
-    def learn_skill_armor_bonus(self, qty_of_books: int):
+    def learn_skill_armor_bonus(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Armor Bonus-.
 
@@ -174,7 +184,7 @@ class Hero:
         else:
             self.bonus_armor_without_agility += 2 * new_level
 
-    def learn_skill_thorn_armor(self, qty_of_books: int):
+    def learn_skill_thorn_armor(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Thorn Armor-.
 
@@ -187,9 +197,10 @@ class Hero:
         self.bonus_armor_without_agility += (new_level - original_level)
         self.other_positive_effect["Physical Damage Reflection"] = 5 * new_level
 
-    def learn_skill_curse_of_death(self, qty_of_books: int):
+    def learn_skill_curse_of_death(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Curse of Death-.
+        If consumed successfully, the skill will be recorded in Hero's attribute other_positive_effect
 
         :param qty_of_books: how many skill books -Curse of Death- are consumed
         :return: None
@@ -207,7 +218,7 @@ class Hero:
             self.other_positive_effect["Curse Damage"] = 200
         self.other_positive_effect["Curse Reg Reduction"] = 20 + 5 * new_level
 
-    def learn_skill_fire(self, qty_of_books: int):
+    def learn_skill_fire(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Fire!-.
 
@@ -219,7 +230,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Fire!", qty_of_books)
         self.other_positive_effect["Ignore Armor"] = 10 + 5 * new_level
 
-    def learn_skill_crushing(self, qty_of_books: int):
+    def learn_skill_crushing(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Crushing-.
 
@@ -231,7 +242,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Crushing", qty_of_books)
         self.attack_attachment["Crushing"] = new_level
 
-    def learn_skill_damage_bonus(self, qty_of_books: int):
+    def learn_skill_damage_bonus(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Damage Bonus-.
 
@@ -246,7 +257,7 @@ class Hero:
         else:
             self.bonus_damage_without_main_attribute += 25 * (new_level - original_level)
 
-    def learn_skill_life_steal(self, qty_of_books: int):
+    def learn_skill_life_steal(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Life Steal-.
 
@@ -258,7 +269,7 @@ class Hero:
         _, new_level = self.learn_skill_book("Life Steal", qty_of_books)
         self.attack_attachment["Life Steal"] = new_level
 
-    def learn_skill_smash(self, qty_of_books: int):
+    def learn_skill_smash(self, qty_of_books: int) -> None:
         """
         When a hero consumes Skill Book -Smash-.
 
@@ -270,11 +281,14 @@ class Hero:
         _, new_level = self.learn_skill_book("Smash", qty_of_books)
         self.attack_attachment["Smash"] = new_level
 
-    def get_random_skill_book(self, amount_of_skill_book):
+    def get_random_skill_book(self, amount_of_skill_book: int) -> None:
         """
+        Roll random amount of skill books. The hero will learn the 4 skills with the highest amount of skill book.
+        E.g., rolled 20 skill books for [2, 5, 2, 3, 0 ,1, 2, 2, 2, 1, 2]
+        The hero will learn level 5 skill, level 3 skill and randomly pick two level 2 skills.
 
-        :param amount_of_skill_book:
-        :return:
+        :param amount_of_skill_book: how many skill books the hero will get
+        :return: None
         """
         skill_book_list = [0] * 11
         for i in range(0, amount_of_skill_book):
@@ -373,7 +387,7 @@ class Hero:
         self.life_steal_rate += 25 * equip_or_take_off
         self.bonus_damage_without_main_attribute += 45 * equip_or_take_off
 
-    def calculate_status(self):
+    def calculate_status(self) -> None:
         """
         All parameters are set, calculate attack, armor and other attributes.
         The final attributes are described through a dict, status
@@ -447,6 +461,12 @@ class Hero:
         return actual_damage
 
     def life_steal_regenerate(self, life_steal_amount: float) -> int:
+        """
+        When the hero gets some life steals, this will heal same amount HP for the hero.
+
+        :param life_steal_amount: life steal amount
+        :return: Actual damage caused
+        """
         self.status["Current HP"] += life_steal_amount
         actual_amount = round(life_steal_amount)
         return actual_amount
@@ -454,10 +474,12 @@ class Hero:
     def regenerate_and_curse(self, time_second: float, show_all_the_details=False) -> int:
         """
         Calculate hit point regenerate during time period.
+        This function also consider damages the hero taken by second.
+        E.g., Damage comes from Curse of Death
 
         :param time_second: how mang seconds have passed
-        :param show_all_the_details: show details of regenerate and damage in detail or not
-        :return: None
+        :param show_all_the_details: show details of regenerate and damage or not
+        :return: how many hit points the hero regenerated or lost
         """
         regenerate_hp = self.status["Regeneration"] * time_second
         if show_all_the_details:
@@ -478,41 +500,78 @@ class Hero:
         regenerate_hp = round(regenerate_hp)
         return regenerate_hp
 
-    def learn_main_skill_feast(self):
+    def learn_main_skill_feast(self) -> None:
+        """
+        When hero learns main skill -Feast-.
+
+        :return: None
+        """
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
 
-    def learn_main_skill_blade_dance(self):
+    def learn_main_skill_blade_dance(self) -> None:
+        """
+        When hero learns main skill -Blade Dance-.
+
+        :return: None
+        """
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["Blade Dance"] = skill_level
         # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
         self.critical_list["Blade Dance"] = [15 + 5 * skill_level, 180]
 
-    def learn_main_skill_jingu_mastery(self):
+    def learn_main_skill_jingu_mastery(self) -> None:
+        """
+        When hero learns main skill -Jingu Mastery-.
+
+        :return: None
+        """
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["JinGu Mastery"] = skill_level
         self.other_positive_effect["JinGu Mastery Attack Times"] = -5
 
-    # Coup de Grace
-    def learn_main_skill_coup_de_grace(self):
+    def learn_main_skill_moment_of_courage(self):
+        """
+        When hero learns main skill -Moment of Courage-.
+
+        :return: None
+        """
+        skill_level = min(4, (self.hero_level + 1) // 2)
+        self.main_skill_list["Moment of Courage"] = skill_level
+
+    def learn_main_skill_coup_de_grace(self) -> None:
+        """
+        When hero learns main skill -Cope De Grace-.
+        This is an ultimate skill, only can be learned at level 6 and only one ultimate skill is allowed.
+
+        :return: None
+        """
         if self.hero_level < 6:
+            return None
+        if self.ultimate_skill:
             return None
         skill_level = min(3, self.hero_level // 6)
         self.main_skill_list["Coup de Grace"] = skill_level
         # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
         self.critical_list["Coup de Grace"] = [15, 75 + 125 * skill_level]
+        self.ultimate_skill = True
 
     def learn_main_skill_grow(self):
+        """
+        When hero learns main skill -Grow-.
+        This is an ultimate skill, only can be learned at level 6 and only one ultimate skill is allowed.
+
+        :return: None
+        """
         if self.hero_level < 6:
+            return None
+        if self.ultimate_skill:
             return None
         skill_level = min(3, self.hero_level // 6)
         self.main_skill_list["Grow"] = skill_level
         self.bonus_armor_without_agility += 6 + 6 * skill_level
         self.bonus_damage_without_main_attribute += 40 * skill_level - 10
         self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
-
-    def learn_main_skill_moment_of_courage(self):
-        skill_level = min(4, (self.hero_level + 1) // 2)
-        self.main_skill_list["Moment of Courage"] = skill_level
+        self.ultimate_skill = True
 
     def roll_main_skill(self, amount_of_main_skill: int):
         count = 0
@@ -1096,18 +1155,8 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             return dict_to_update
 
         total_occurance = update_dict(total_occurance, hero_1.skill_list)
-        # for skill in hero_1.skill_list.keys():
-        #     if skill in total_occurance.keys():
-        #         total_occurance[skill] += 1
-        #     else:
-        #         total_occurance[skill] = 1
 
         total_occurance = update_dict(total_occurance, hero_2.skill_list)
-        # for skill in hero_2.skill_list.keys():
-        #     if skill in total_occurance.keys():
-        #         total_occurance[skill] += 1
-        #     else:
-        #         total_occurance[skill] = 1
 
         def update_only_dict(dict_to_update, source_dict, rival_dict):
             for skill_name in source_dict.keys():
@@ -1119,52 +1168,18 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             return dict_to_update
 
         total_occurance_only = update_only_dict(total_occurance_only, hero_1.skill_list, hero_2.skill_list)
-        # for skill in hero_1.skill_list.keys():
-        #     if skill not in hero_2.skill_list.keys():
-        #         if skill in total_occurance_only.keys():
-        #             total_occurance_only[skill] += 1
-        #         else:
-        #             total_occurance_only[skill] = 1
 
         total_occurance_only = update_only_dict(total_occurance_only, hero_2.skill_list, hero_1.skill_list)
-        # for skill in hero_2.skill_list.keys():
-        #     if skill not in hero_1.skill_list.keys():
-        #         if skill in total_occurance_only.keys():
-        #             total_occurance_only[skill] += 1
-        #         else:
-        #             total_occurance_only[skill] = 1
 
         total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_1.main_skill_list)
-        # for skill in hero_1.main_skill_list.keys():
-        #     if skill in total_occurance_main_skill.keys():
-        #         total_occurance_main_skill[skill] += 1
-        #     else:
-        #         total_occurance_main_skill[skill] = 1
 
         total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_2.main_skill_list)
-        # for skill in hero_2.main_skill_list.keys():
-        #     if skill in total_occurance_main_skill.keys():
-        #         total_occurance_main_skill[skill] += 1
-        #     else:
-        #         total_occurance_main_skill[skill] = 1
 
         total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
                                                            hero_1.main_skill_list, hero_2.main_skill_list)
-        # for skill in hero_1.main_skill_list.keys():
-        #     if skill not in hero_2.main_skill_list.keys():
-        #         if skill in total_occurance_main_skill_only.keys():
-        #             total_occurance_main_skill_only[skill] += 1
-        #         else:
-        #             total_occurance_main_skill_only[skill] = 1
 
         total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
                                                            hero_2.main_skill_list, hero_1.main_skill_list)
-        # for skill in hero_2.main_skill_list.keys():
-        #     if skill not in hero_1.main_skill_list.keys():
-        #         if skill in total_occurance_main_skill_only.keys():
-        #             total_occurance_main_skill_only[skill] += 1
-        #         else:
-        #             total_occurance_main_skill_only[skill] = 1
 
         def update_dict_by_list(dict_to_update, source_list):
             for skill_name in source_list:
@@ -1175,6 +1190,7 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             return dict_to_update
 
         winning_count = update_dict_by_list(winning_count, skill_list)
+
         # for skill in skill_list:
         #     if skill in winning_count.keys():
         #         winning_count[skill] += 1
@@ -1238,7 +1254,7 @@ def aggregate_analyze(loop_times: int, hero_level: int,
 
 
 def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int) -> None:
-    print('\n{}{}{}'.format(' ' * ((90-len(report_name))//2), report_name, ' ' * ((90-len(report_name))//2)))
+    print('\n{}{}{}'.format(' ' * ((90 - len(report_name)) // 2), report_name, ' ' * ((90 - len(report_name)) // 2)))
     print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurance{}Winner-Side/Total"
           .format(' ' * (25 - len('Skill Name')), ' ' * (15 - len('Win Fights')),
                   ' ' * (27 - len('Occurrence(winner-side)')), ' ' * (20 - len('Total Occurance'))))
