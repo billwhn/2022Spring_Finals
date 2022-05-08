@@ -726,6 +726,26 @@ class Hero:
 
         :param physical_damage_amount: Damage Amount before calculating Armor
         :return: Actual damage caused
+        >>> monkey_king = HeroMonkeyKing(1)
+        >>> monkey_king.calculate_status()
+        >>> int(monkey_king.status["Current HP"])
+        524
+        >>> round(monkey_king.status["Physical Resistance"], 3)
+        0.754
+        >>> monkey_king.taken_physical_damage(100.0)
+        75
+        >>> int(monkey_king.status["Current HP"])
+        448
+        >>> monkey_king_2 = HeroMonkeyKing(15)
+        >>> monkey_king_2.calculate_status()
+        >>> int(monkey_king_2.status["Current HP"])
+        1308
+        >>> round(monkey_king_2.status["Physical Resistance"], 3)
+        0.541
+        >>> monkey_king_2.taken_physical_damage(100.0)
+        54
+        >>> int(monkey_king_2.status["Current HP"])
+        1253
         """
         actual_damage = physical_damage_amount * self.status["Physical Resistance"]
         self.status["Current HP"] -= actual_damage
@@ -738,6 +758,16 @@ class Hero:
 
         :param magical_damage_amount: Damage Amount before calculating Armor
         :return: Actual damage caused
+        >>> monkey_king = HeroMonkeyKing(1)
+        >>> monkey_king.calculate_status()
+        >>> int(monkey_king.status["Current HP"])
+        524
+        >>> monkey_king.status["Magic Resistance"]
+        0.25
+        >>> monkey_king.taken_magical_damage(100.0)
+        75
+        >>> int(monkey_king.status["Current HP"])
+        449
         """
         actual_damage = magical_damage_amount * (1 - self.status["Magic Resistance"])
         self.status["Current HP"] -= actual_damage
@@ -750,6 +780,14 @@ class Hero:
 
         :param true_damage_amount: Damage Amount
         :return: Actual damage caused
+        >>> monkey_king = HeroMonkeyKing(1)
+        >>> monkey_king.calculate_status()
+        >>> int(monkey_king.status["Current HP"])
+        524
+        >>> monkey_king.taken_true_damage(100.0)
+        100
+        >>> int(monkey_king.status["Current HP"])
+        424
         """
         self.status["Current HP"] -= true_damage_amount
         actual_damage = round(true_damage_amount)
