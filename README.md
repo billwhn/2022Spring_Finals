@@ -51,6 +51,8 @@ How many amount of skill books the Hero will get is manually set.
 ### Variables with Randomness
 ![read_me_pics/random_var.png](read_me_pics/random_var.png)
 ## Hypothesis
+![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
+![read_me_pics/MKBvsNoMKB.png](read_me_pics/MKBvsNoMKB.png)
 # Appendix
 ## Illustration for More Detailed Game Mechanism
 ### Armor
