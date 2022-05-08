@@ -50,7 +50,13 @@ Amount of Skill Books ---
 How many amount of skill books the Hero will get is manually set.
 ### Variables with Randomness
 ![read_me_pics/random_var.png](read_me_pics/random_var.png)
-## Hypothesis
+## Hypotheses
+We have four main hypotheses:
+### 1. Evasion is the strongest sub skill
+### 2. If heroes equip the item "MKB", the winning rate of Evasion will decrease greatly
+### 3. Duel at different stages, the weight of sub skills will vary
+### 4. Duel at different stages, the weight of main skills will vary
+We believe the Evasion is the best sub skill, and the Monkey king bar has an eighty percent chance to pierce through Evasion, so it will make the wining rate of Evasion decrease greatly. Third, in an earlier stage, heroes have less hit point, the duel will have fewer attack rounds and time, so the importance of different skills will change.
 ![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
 ![read_me_pics/MKBvsNoMKB.png](read_me_pics/MKBvsNoMKB.png)
 # Appendix

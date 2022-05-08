@@ -1758,7 +1758,7 @@ def aggregate_analyze(loop_times: int, hero_level: int,
                       hero_1_model: str, hero_2_model: str, hero_1_name: str, hero_2_name: str,
                       number_of_skill_books: int, number_of_main_skills: int, ultimate_skill: bool, items_dict: dict,
                       show_loop_aggregate_result=True, show_skill_list_each_time=False, show_log_or_not=False,
-                      show_all_the_details=False, show_regenerate_rs=False) -> dict:
+                      show_all_the_details=False, show_regenerate_rs=False, sub_or_main=False) -> dict:
     """
     This function seals all the progress for the monte carlo simulation.
 
@@ -1777,7 +1777,8 @@ def aggregate_analyze(loop_times: int, hero_level: int,
     :param show_log_or_not: for each attack, show aggregated damage log or not
     :param show_all_the_details: for each attack, show how the damage is composed of or not
     :param show_regenerate_rs: show log for hero's regeneration and curse damage or not
-    :return: Winning rate of sub skills
+    :param sub_or_main: False return winning rate of sub skills, True return winning rate of main skills
+    :return: Winning rate of skills
     """
 
     winning_count_only = {}
@@ -1861,10 +1862,12 @@ def aggregate_analyze(loop_times: int, hero_level: int,
         sub_winning_rate_dict = show_dict_report("Sub Skills", winning_count_only,
                                                  total_occurrence_only, loop_times, total_occurrence)
 
-        show_dict_report("Main Skills", winning_count_main_skill_only,
+        main_winning_rate_dict = show_dict_report("Main Skills", winning_count_main_skill_only,
                          total_occurrence_main_skill_only, loop_times, total_occurrence_main_skill)
-
-    return sub_winning_rate_dict
+    if sub_or_main:
+        return main_winning_rate_dict
+    else:
+        return sub_winning_rate_dict
 
 
 def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int,
@@ -1919,7 +1922,7 @@ def creat_plot(result1: dict, result2: dict, label1: str, label2: str) -> None:
     y_data2 = []
     y_data3 = []
 
-    for i in range(0, 11):
+    for i in range(0, len(result1)):
         y_data2.append(result2.get(x_data[i]))
         y_data3.append(round(result2.get(x_data[i]) - result1.get(x_data[i]), 2))
 
