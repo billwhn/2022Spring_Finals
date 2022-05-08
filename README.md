@@ -91,6 +91,8 @@ Main Skills are set by Dota2.
 ### Monkey King
 ![read_me_pics/monkey_king.png](read_me_pics/monkey_king.png)
 ![read_me_pics/monkey_king_attr.png](read_me_pics/monkey_king_attr.png)
+
+(Source: https://liquipedia.net/dota2/Monkey_King)
 ## Items
 ### Monkey King Bar:
 Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
