@@ -177,22 +177,24 @@ class Hero:
         >>> hero_object.learn_skill_attribute_bonus(5)
         >>> "Attribute Bonus" in hero_object.skill_list.keys()
         True
-        >>> hero_object.skill_list["Attribute Bonus"] == 5
-        True
+        >>> hero_object.skill_list["Attribute Bonus"]
+        5
         >>> hero_object.bonus_agility
         25
         >>> hero_object.learn_skill_attribute_bonus(4)
-        >>> hero_object.skill_list["Attribute Bonus"] == 9
-        True
+        >>> hero_object.skill_list["Attribute Bonus"]
+        9
         >>> hero_object.learn_skill_attribute_bonus(4)
         >>> hero_object.bonus_agility
         50
-        >>> hero_object.skill_list["Attribute Bonus"] == 10
-        True
+        >>> hero_object.skill_list["Attribute Bonus"]
+        10
         >>> hero_object_test_2 = Hero(10)
         >>> hero_object_test_2.learn_skill_attribute_bonus(17)
-        >>> hero_object_test_2.skill_list["Attribute Bonus"] == 10
-        True
+        >>> hero_object_test_2.skill_list["Attribute Bonus"]
+        10
+        >>> hero_object_test_2.learn_skill_attribute_bonus(17)
+
         """
         if not self.check_able_to_learn_skill_book("Attribute Bonus"):
             return None
@@ -212,24 +214,26 @@ class Hero:
         >>> hero_object.learn_skill_evasion(5)
         >>> "Evasion" in hero_object.skill_list.keys()
         True
-        >>> hero_object.skill_list["Evasion"] == 5
-        True
+        >>> hero_object.skill_list["Evasion"]
+        5
         >>> hero_object.evasion_list["Evasion"]
         55
         >>> hero_object.learn_skill_evasion(4)
-        >>> hero_object.skill_list["Evasion"] == 9
-        True
+        >>> hero_object.skill_list["Evasion"]
+        9
         >>> hero_object.evasion_list["Evasion"]
         75
         >>> hero_object.learn_skill_evasion(4)
-        >>> hero_object.skill_list["Evasion"] == 10
-        True
+        >>> hero_object.skill_list["Evasion"]
+        10
         >>> hero_object_test_2 = Hero(10)
         >>> hero_object_test_2.learn_skill_evasion(17)
-        >>> hero_object_test_2.skill_list["Evasion"] == 10
-        True
+        >>> hero_object_test_2.skill_list["Evasion"]
+        10
         >>> hero_object_test_2.evasion_list["Evasion"]
         80
+        >>> hero_object_test_2.learn_skill_evasion(17)
+
         """
         if not self.check_able_to_learn_skill_book("Evasion"):
             return None
@@ -242,6 +246,21 @@ class Hero:
 
         :param qty_of_books: how many skill books -Corruption- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Corruption" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_corruption(4)
+        >>> "Corruption" in hero_object.skill_list.keys()
+        True
+        >>> hero_object.other_positive_effect["Reduce Enemy Armor"]
+        8
+        >>> hero_object.learn_skill_corruption(13)
+        >>> hero_object.skill_list["Corruption"]
+        10
+        >>> hero_object.other_positive_effect["Reduce Enemy Armor"]
+        20
+        >>> hero_object.learn_skill_corruption(1)
+
         """
         if not self.check_able_to_learn_skill_book("Corruption"):
             return None
