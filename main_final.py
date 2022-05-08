@@ -690,6 +690,33 @@ class Hero:
         The final attributes are described through a dict, status
 
         :return: None
+        >>> monkey_king = HeroMonkeyKing(10)
+        >>> monkey_king.calculate_status()
+        >>> round(monkey_king.status["Max HP"])
+        1028
+        >>> round(monkey_king.status["Lowest Damage"])
+        84
+        >>> round(monkey_king.status["Regeneration"], 2)
+        5.32
+        >>> round(monkey_king.status["Physical Resistance"], 4)
+        0.6029
+        >>> round(monkey_king.status["Attack Interval"], 4)
+        0.6659
+        >>> monkey_king.equip_monkey_king_bar(1)
+        >>> monkey_king.equip_heart_of_tarrasque(1)
+        >>> monkey_king.learn_skill_armor_bonus(3)
+        >>> monkey_king.learn_skill_attribute_bonus(5)
+        >>> monkey_king.calculate_status()
+        >>> round(monkey_king.status["Max HP"])
+        2678
+        >>> round(monkey_king.status["Lowest Damage"])
+        149
+        >>> round(monkey_king.status["Regeneration"], 2)
+        55.17
+        >>> round(monkey_king.status["Physical Resistance"], 4)
+        0.3721
+        >>> round(monkey_king.status["Attack Interval"], 4)
+        0.5226
         """
         self.status["Strength"] = self.basic_strength + self.hero_level * self.strength_level_growth \
                                   + self.bonus_strength
