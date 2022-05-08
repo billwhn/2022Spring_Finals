@@ -338,6 +338,31 @@ class Hero:
 
         :param qty_of_books: how many skill books -Curse of Death- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Curse of Death" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_curse_of_death(2)
+        >>> "Curse of Death" in hero_object.skill_list.keys()
+        True
+        >>> hero_object.skill_list["Curse of Death"]
+        2
+        >>> hero_object.other_positive_effect["Curse Damage"]
+        20
+        >>> hero_object.learn_skill_curse_of_death(5)
+        >>> hero_object.skill_list["Curse of Death"]
+        7
+        >>> hero_object.other_positive_effect["Curse Damage"]
+        100
+        >>> hero_object.other_positive_effect["Curse Reg Reduction"]
+        55
+        >>> hero_object.learn_skill_curse_of_death(2)
+        >>> hero_object.other_positive_effect["Curse Damage"]
+        150
+        >>> hero_object.learn_skill_curse_of_death(15)
+        >>> hero_object.other_positive_effect["Curse Damage"]
+        200
+        >>> hero_object.learn_skill_curse_of_death(1)
+
         """
         if not self.check_able_to_learn_skill_book("Curse of Death"):
             return None
