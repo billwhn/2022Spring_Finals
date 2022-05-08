@@ -1021,6 +1021,34 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
     :param attack_hero: the hero who attacks
     :param defend_hero: the hero who defends the attack
     :return: damage_list: the list of the attack result
+    >>> monkey_king = HeroMonkeyKing(1)
+    >>> life_stealer = HeroLifeStealer(1)
+    >>> monkey_king.calculate_status()
+    >>> life_stealer.calculate_status()
+    >>> _ = monkey_king.taken_true_damage(100.0)
+    >>> _ = life_stealer.taken_true_damage(100.0)
+    >>> attack_rs = attack(life_stealer, monkey_king)
+    >>> attack_rs[0]
+    0
+    >>> 44 > attack_rs[1] > 37
+    True
+    >>> 9 > attack_rs[2] > 7.5
+    True
+
+    >>> monkey_king.learn_skill_thorn_armor(5)
+    >>> monkey_king.calculate_status()
+    >>> life_stealer.calculate_status()
+    >>> _ = monkey_king.taken_true_damage(100.0)
+    >>> _ = life_stealer.taken_true_damage(100.0)
+    >>> attack_rs = attack(life_stealer, monkey_king)
+    >>> attack_rs[0] > 0
+    True
+    >>> monkey_king.evasion_list["Test Not Existing Evasion Skill"] = 100
+    >>> attack(life_stealer, monkey_king)
+    [0, 0, 0]
+    >>> _ = life_stealer.taken_true_damage(1000)
+    >>> attack(life_stealer, monkey_king)
+    [0, 0, 0]
     """
     attack_damage = random.uniform(attack_hero.status['Lowest Damage'], attack_hero.status['Highest Damage'])
     # evadable physical damage, evadable magic damage, evadable true damage
@@ -1082,7 +1110,7 @@ def attack(attack_hero: Hero, defend_hero: Hero, show_log_or_not=False, show_all
         if len(defend_hero.evasion_list.keys()) != 0:
             for evasion_skill in defend_hero.evasion_list:
                 evasion_possibility = defend_hero.evasion_list[evasion_skill]
-                if random.randint(0, 100) < evasion_possibility:
+                if random.randint(0, 100) <= evasion_possibility:
                     # evade successfully
                     evaded = True
                     break
@@ -1232,6 +1260,8 @@ def damage_calculation(attack_hero: Hero, defend_hero: Hero, damage_list,
     attacker_taken_damage += attack_hero.taken_magical_damage(damage_list[7])
     attacker_taken_damage += attack_hero.taken_true_damage(damage_list[8])
     attack_hero.life_steal_regenerate(life_steal_amount)
+
+    life_steal_amount = round(life_steal_amount)
 
     attack_result = [attacker_taken_damage, defender_taken_damage, life_steal_amount]
     if show_log_or_not:
