@@ -51,3 +51,29 @@ Which hero model the simulation will actually use and the hero level are manuall
 
 Amount of Skill Books ---
 How many amount of skill books the Hero will get is manually set.
+### Variables with Randomness
+## Hypothesis
+# Appendix
+## Illustration for More Detailed Game Mechanism
+### Armor
+Reduce physical damage the hero takes.
+
+(Source: https://liquipedia.net/dota2/Armor)
+### Magic Resistance
+Reduces Magical damage the hero takes.
+
+All the heroes have a 25% basic Magic Resistance. Since the item system is limited, there is no way to improve magic resistance in this model.
+
+(Source: https://liquipedia.net/dota2/Magic_Resistance)
+##  Strength & Agility
+Strength increases maximum health and health regeneration while Agility increases armor and attack speed. If Strength or Agility is the main attribute (primary attribute), it will also increase damage.
+
+Each Strength gives: +20 Health (Hit Points), +0.1 Health Regeneration
+
+Each Agility gives: +0.16 Armor, +1 Attack Speed
+## Attack Speed
+Attack Interval = Base Attack Time ÷ (1 + (Increased Attack Speed ÷ 100))
+
+(Source: https://liquipedia.net/dota2/Attack_Speed)
+## Illustration for sub-Skills
+Sub-skills are the skills gained by consuming Skill Books. These skills are defined by the RPG game, not Dota2 itself.
