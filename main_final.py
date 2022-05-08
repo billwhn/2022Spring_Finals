@@ -1802,10 +1802,6 @@ def creat_plot(result1: dict, result2: dict) -> None:
     for i in range(0, 11):
         y_data2.append(result2.get(x_data[i]))
 
-    print(x_data)
-    print(y_data)
-    print(y_data2)
-
     bar_width = 0.3
 
     plt.bar(x=range(len(x_data)), height=y_data, label='Without MKB',
@@ -1819,10 +1815,12 @@ def creat_plot(result1: dict, result2: dict) -> None:
     for x, y in enumerate(y_data2):
         plt.text(x + bar_width, y + 100, '%s' % y, ha='center', va='top')
 
+    plt.xticks(np.arange(len(x_data))+bar_width/2, x_data, rotation=45)
     plt.title("Winning Rate Summary")
     plt.xlabel("Skills")
     plt.ylabel("Winning Rate")
     plt.legend()
+    plt.subplots_adjust(left=0.1, bottom=0.25)
 
     plt.show()
 
