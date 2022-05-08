@@ -1684,10 +1684,10 @@ def aggregate_analyze(loop_times: int, hero_level: int,
     winning_count_main_skill = {}
     winning_count_only = {}
     winning_count_main_skill_only = {}
-    total_occurance = {}
-    total_occurance_main_skill = {}
-    total_occurance_only = {}
-    total_occurance_main_skill_only = {}
+    total_occurrence = {}
+    total_occurrence_main_skill = {}
+    total_occurrence_only = {}
+    total_occurrence_main_skill_only = {}
     sub_winning_rate_dict = {}
 
     for i in range(0, loop_times):
@@ -1732,37 +1732,28 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             skill_list2 = hero_1.skill_list.keys()
             main_skill_list2 = hero_1.main_skill_list.keys()
 
-        # total_occurance = update_dict(total_occurance, hero_1.skill_list)
-        # total_occurance = update_dict(total_occurance, hero_2.skill_list)
+        # total_occurrence = update_dict(total_occurrence, hero_1.skill_list)
+        # total_occurrence = update_dict(total_occurrence, hero_2.skill_list)
 
-        # total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_1.main_skill_list)
-        # total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_2.main_skill_list)
+        # total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_1.main_skill_list)
+        # total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_2.main_skill_list)
 
         # winning_count = update_dict_by_list(winning_count, skill_list)
         # winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
 
-        total_occurance_only = update_only_dict(total_occurance_only, hero_1.skill_list, hero_2.skill_list)
+        total_occurrence_only = update_only_dict(total_occurrence_only, hero_1.skill_list, hero_2.skill_list)
+        total_occurrence_only = update_only_dict(total_occurrence_only, hero_2.skill_list, hero_1.skill_list)
 
-        total_occurance_only = update_only_dict(total_occurance_only, hero_2.skill_list, hero_1.skill_list)
-
-        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_1.main_skill_list)
-
-        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_2.main_skill_list)
-
-        total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
+        total_occurrence_main_skill_only = update_only_dict(total_occurrence_main_skill_only,
                                                            hero_1.main_skill_list, hero_2.main_skill_list)
-
-        total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
+        total_occurrence_main_skill_only = update_only_dict(total_occurrence_main_skill_only,
                                                            hero_2.main_skill_list, hero_1.main_skill_list)
 
         winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
-
-        winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
-
         winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
                                                                  main_skill_list, main_skill_list2)
 
-        winning_count = update_dict_by_list(winning_count, skill_list)
+
 
     if show_loop_aggregate_result:
         # winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
@@ -1777,10 +1768,10 @@ def aggregate_analyze(loop_times: int, hero_level: int,
               .format(loop_times, hero_level, number_of_skill_books))
 
         sub_winning_rate_dict = show_dict_report("Sub Skills", winning_count_only,
-                                                 total_occurance_only, loop_times)
+                                                 total_occurrence_only, loop_times)
 
         main_winning_rate_dict = show_dict_report("Main Skills", winning_count_main_skill_only,
-                                                  total_occurance_main_skill_only, loop_times)
+                                                  total_occurrence_main_skill_only, loop_times)
 
     return sub_winning_rate_dict
 
@@ -1791,9 +1782,9 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
     """
     plot = {}
     print('\n{}{}{}'.format(' ' * ((90 - len(report_name)) // 2), report_name, ' ' * ((90 - len(report_name)) // 2)))
-    print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurance{}Winner-Side/Total"
+    print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurrence{}Winner-Side/Total"
           .format(' ' * (25 - len('Skill Name')), ' ' * (15 - len('Win Fights')),
-                  ' ' * (27 - len('Occurrence(winner-side)')), ' ' * (20 - len('Total Occurance'))))
+                  ' ' * (27 - len('Occurrence(winner-side)')), ' ' * (20 - len('Total Occurrence'))))
     for skill in winner_dict.keys():
         rate_winner_side = round(int(winner_dict[skill]) / loop_times * 100, 2)
         rate_occ_total = round(int(winner_dict[skill]) / total_count_dict[skill] * 100, 2)
@@ -1817,13 +1808,10 @@ def creat_plot(result1: dict, result2: dict) -> None:
     x_data = list(result1.keys())
     y_data = list(result1.values())
     y_data2 = []
+    y_data3 = []
 
     for i in range(0, 11):
         y_data2.append(result2.get(x_data[i]))
-
-    print(x_data)
-    print(y_data)
-    print(y_data2)
 
     bar_width = 0.3
 
@@ -1838,10 +1826,12 @@ def creat_plot(result1: dict, result2: dict) -> None:
     for x, y in enumerate(y_data2):
         plt.text(x + bar_width, y + 100, '%s' % y, ha='center', va='top')
 
+    plt.xticks(np.arange(len(x_data))+bar_width/2, x_data, rotation=45)
     plt.title("Winning Rate Summary")
     plt.xlabel("Skills")
     plt.ylabel("Winning Rate")
     plt.legend()
+    plt.subplots_adjust(left=0.1, bottom=0.25)
 
     plt.show()
 
@@ -1856,20 +1846,10 @@ if __name__ == "__main__":
     noMKB_result = aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
                                      "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
                                      True, False, False, False, False)
-
+    # You could try item "Heart" or "Satanic" here.
     item_dict["MKB"] = 1
     MKB_result = aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
                                    "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
                                    True, False, False, False, False)
-
-    item_dict["Heart"] = 1
-    aggregate_analyze(1000, 15, "MonkeyKing", "MonkeyKing",
-                      "Monkey King 1st", "King Monkey 2nd", 60, 0, False, item_dict,
-                      True, False, False, False, False)
-
-    item_dict["Heart"] = 3
-    aggregate_analyze(1000, 25, "MonkeyKing", "MonkeyKing",
-                      "Monkey King 1st", "King Monkey 2nd", 120, 0, False, item_dict,
-                      True, False, False, False, False)
 
     creat_plot(noMKB_result, MKB_result)
