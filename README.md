@@ -106,7 +106,7 @@ Grow (Skill of Tiny in Dota2 https://liquipedia.net/dota2/Tiny)
 ![read_me_pics/monkey_king_attr.png](read_me_pics/monkey_king_attr.png)
 
 (Source: https://liquipedia.net/dota2/Monkey_King)
-### Other Models Implemented
+### Other Hero Models Implemented
 Life Stealer (https://liquipedia.net/dota2/Lifestealer)
 
 Bounty Hunter (https://liquipedia.net/dota2/Bounty_Hunter)
