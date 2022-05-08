@@ -26,11 +26,11 @@ For example, if a hero consumed 7 Skill Book-Armor Improving, he will have a Lev
 There are various items in the game, which makes it impossible to simulate. Thus, we will simulate the duel only with two items: Monkey King Bar and Heart of Tarrasque.
 ##### *Item - Monkey King Bar:
 Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
-
+![read_me_pics/MKB.png](read_me_pics/MKB.png)
 (Source: https://liquipedia.net/dota2/Monkey_King_Bar)
 ##### *Item - Heart of Tarrasque:
 Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
-
+![read_me_pics/heart.png](read_me_pics/heart.png)
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
 ![read_me_pics/assumptions.png](read_me_pics/assumptions.png)
@@ -52,7 +52,7 @@ Which hero model the simulation will actually use and the hero level are manuall
 Amount of Skill Books ---
 How many amount of skill books the Hero will get is manually set.
 ### Variables with Randomness
-![read_me_pics/random_variables.png](read_me_pics/random_variables.png)
+![read_me_pics/random_var.png](read_me_pics/random_var.png)
 ## Hypothesis
 # Appendix
 ## Illustration for More Detailed Game Mechanism
