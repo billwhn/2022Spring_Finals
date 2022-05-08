@@ -502,6 +502,21 @@ class Hero:
 
         :param qty_of_books: how many skill books -Smash- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Smash" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_smash(6)
+        >>> hero_object.skill_list["Smash"]
+        6
+        >>> hero_object.attack_attachment["Smash"]
+        6
+        >>> hero_object.learn_skill_smash(13)
+        >>> hero_object.skill_list["Smash"]
+        10
+        >>> hero_object.attack_attachment["Smash"]
+        10
+        >>> hero_object.learn_skill_smash(1)
+
         """
         if not self.check_able_to_learn_skill_book("Smash"):
             return None
@@ -516,6 +531,17 @@ class Hero:
 
         :param amount_of_skill_book: how many skill books the hero will get
         :return: None
+        >>> hero_object = Hero(10)
+        >>> len(hero_object.skill_list.keys())
+        0
+        >>> hero_object.get_random_skill_book(55)
+        >>> len(hero_object.skill_list.keys())
+        4
+        >>> skill_level_sum = 0
+        >>> for key in hero_object.skill_list.keys():
+        ...     skill_level_sum += hero_object.skill_list[key]  # This doctest has an extremely low possibility to fail
+        >>> skill_level_sum >= 20                               # E.g., Rolled(1,11) and got 1 for all the 55 times
+        True
         """
         skill_book_list = [0] * 11
         for i in range(0, amount_of_skill_book):
@@ -580,8 +606,25 @@ class Hero:
 
         :param equip_or_take_off: 1 means equip MKB, -1 means take off MKB, could be 2 or more
         :return: None
+        >>> hero_object = Hero()
+        >>> "MKB" in hero_object.attack_attachment.keys()
+        False
+        >>> hero_object.equip_monkey_king_bar(1)
+        >>> hero_object.bonus_attack_speed_without_agility
+        45
+        >>> hero_object.bonus_damage_without_main_attribute
+        40
+        >>> hero_object.attack_attachment["MKB"]
+        1
+        >>> hero_object.equip_monkey_king_bar(2)
+        >>> hero_object.bonus_attack_speed_without_agility
+        135
+        >>> hero_object.bonus_damage_without_main_attribute
+        120
+        >>> hero_object.attack_attachment["MKB"]
+        3
         """
-        self.basic_attack_speed += 45 * equip_or_take_off
+        self.bonus_attack_speed_without_agility += 45 * equip_or_take_off
         self.bonus_damage_without_main_attribute += 40 * equip_or_take_off
         if "MKB" in self.attack_attachment.keys():
             self.attack_attachment["MKB"] += equip_or_take_off
@@ -595,6 +638,23 @@ class Hero:
         :param equip_or_take_off: 1 means equip Heart of Tarrasque,
                                   -1 means take off Heart of Tarrasque, could be 2 or more
         :return: None
+        >>> hero_object = Hero()
+        >>> "Heart" in hero_object.other_positive_effect.keys()
+        False
+        >>> hero_object.equip_heart_of_tarrasque(1)
+        >>> hero_object.bonus_strength
+        45
+        >>> hero_object.bonus_hit_point_without_strength
+        250
+        >>> hero_object.other_positive_effect["Heart"]
+        1
+        >>> hero_object.equip_heart_of_tarrasque(1)
+        >>> hero_object.bonus_strength
+        90
+        >>> hero_object.bonus_hit_point_without_strength
+        500
+        >>> hero_object.other_positive_effect["Heart"]
+        2
         """
         self.bonus_strength += 45 * equip_or_take_off
         self.bonus_hit_point_without_strength += 250 * equip_or_take_off
