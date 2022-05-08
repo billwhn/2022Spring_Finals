@@ -1824,11 +1824,11 @@ def aggregate_analyze(loop_times: int, hero_level: int,
             skill_list2 = hero_1.skill_list.keys()
             main_skill_list2 = hero_1.main_skill_list.keys()
 
-        # total_occurrence = update_dict(total_occurrence, hero_1.skill_list)
-        # total_occurrence = update_dict(total_occurrence, hero_2.skill_list)
+        total_occurrence = update_dict(total_occurrence, hero_1.skill_list)
+        total_occurrence = update_dict(total_occurrence, hero_2.skill_list)
 
-        # total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_1.main_skill_list)
-        # total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_2.main_skill_list)
+        total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_1.main_skill_list)
+        total_occurrence_main_skill = update_dict(total_occurrence_main_skill, hero_2.main_skill_list)
 
         # winning_count = update_dict_by_list(winning_count, skill_list)
         # winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
@@ -1858,39 +1858,39 @@ def aggregate_analyze(loop_times: int, hero_level: int,
               .format(loop_times, hero_level, number_of_skill_books))
 
         sub_winning_rate_dict = show_dict_report("Sub Skills", winning_count_only,
-                                                 total_occurrence_only, loop_times)
+                                                 total_occurrence_only, loop_times, total_occurrence)
 
         main_winning_rate_dict = show_dict_report("Main Skills", winning_count_main_skill_only,
-                                                  total_occurrence_main_skill_only, loop_times)
+                                                  total_occurrence_main_skill_only, loop_times, total_occurrence_main_skill)
 
     return sub_winning_rate_dict
 
 
-def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int) -> dict:
+def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict, loop_times: int, total_count_two_sides_dict: dict) -> dict:
     """
     This function is used to print the result of the monte carlo simulation.
     """
     plot = {}
     print('\n{}{}{}'.format(' ' * ((90 - len(report_name)) // 2), report_name, ' ' * ((90 - len(report_name)) // 2)))
-    print("Skill Name{}Win Fights{}Occurrence(winner-side){}Total Occurrence{}Winner-Side/Total"
+    print("Skill Name{}Win Fights{}Total Occurrence{}Winning Rate{}Occurrence Rate(Two sides count separately)"
           .format(' ' * (25 - len('Skill Name')), ' ' * (15 - len('Win Fights')),
-                  ' ' * (27 - len('Occurrence(winner-side)')), ' ' * (20 - len('Total Occurrence'))))
+                  ' ' * (20 - len('Total Occurrence')), ' ' * (27 - len('Occurrence Rate(Two sides count separately)'))))
     for skill in winner_dict.keys():
-        rate_winner_side = round(int(winner_dict[skill]) / loop_times * 100, 2)
-        rate_occ_total = round(int(winner_dict[skill]) / total_count_dict[skill] * 100, 2)
-        plot[skill] = rate_occ_total
-        print("{}{}{}{}{}%{}{}{}{}%"
+        rate_occ_two_side_total = round(int(total_count_two_sides_dict[skill]) / (loop_times * 2) * 100, 2)
+        rate_winner_side = round(int(winner_dict[skill]) / total_count_dict[skill] * 100, 2)
+        plot[skill] = rate_winner_side
+        print("{}{}{}{}{}{}{}%{}{}%"
               .format(skill, ' ' * (25 - len(skill)),
                       winner_dict[skill], ' ' * (15 - len(str(winner_dict[skill]))),
-                      rate_winner_side, ' ' * (26 - len(str(rate_winner_side))),
                       total_count_dict[skill], ' ' * (20 - len(str(total_count_dict[skill]))),
-                      rate_occ_total
+                      rate_winner_side,
+                      rate_occ_two_side_total, ' ' * (26 - len(str(rate_occ_two_side_total)))
                       ))
 
     return plot
 
 
-def creat_plot(result1: dict, result2: dict) -> None:
+def creat_plot(result1: dict, result2: dict, label1: str, label2: str) -> None:
     """
     This function is used to print the result of the monte carlo simulation.
     """
@@ -1902,25 +1902,31 @@ def creat_plot(result1: dict, result2: dict) -> None:
 
     for i in range(0, 11):
         y_data2.append(result2.get(x_data[i]))
+        y_data3.append(round(result2.get(x_data[i])-result1.get(x_data[i]),2))
 
     bar_width = 0.3
 
-    plt.bar(x=range(len(x_data)), height=y_data, label='Without MKB',
+    plt.bar(x=range(len(x_data)), height=y_data, label=label1,
             color='steelblue', alpha=0.8, width=bar_width)
 
     plt.bar(x=np.arange(len(x_data)) + bar_width, height=y_data2,
-            label='With MKB', color='indianred', alpha=0.8, width=bar_width)
+            label=label2, color='indianred', alpha=0.8, width=bar_width)
+
+    plt.bar(x=np.arange(len(x_data)) + bar_width*2, height=y_data3,
+            label='Difference', color='purple', alpha=0.8, width=bar_width)
 
     for x, y in enumerate(y_data):
-        plt.text(x, y + 100, '%s' % y, ha='center', va='bottom')
+        plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=7)
     for x, y in enumerate(y_data2):
-        plt.text(x + bar_width, y + 100, '%s' % y, ha='center', va='top')
+        plt.text(x + bar_width, y, '%s' % y, ha='center', va='top', fontsize=7)
+    for x, y in enumerate(y_data3):
+        plt.text(x + bar_width*2, y, '%s' % y, ha='center', va='center', fontsize=7)
 
     plt.xticks(np.arange(len(x_data)) + bar_width / 2, x_data, rotation=45)
     plt.title("Winning Rate Summary")
     plt.xlabel("Skills")
     plt.ylabel("Winning Rate")
     plt.legend()
-    plt.subplots_adjust(left=0.1, bottom=0.25)
+    plt.subplots_adjust(bottom=0.25)
 
     plt.show()
