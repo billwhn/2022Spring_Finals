@@ -3,7 +3,7 @@
 #### 2022 Spring Final Project
 *Note: The data is up to 05/05/2022, some changes may occur since Dota2 is always updating.
 ## Team Members
-![img_3.png](img_3.png)
+![read_me_pics/img_3.png](read_me_pics/img_3.png)
 ## Game Introduction
 This is a simulation of a duel in a game background.
 Battle Of Mirkwood is a Role Play Game based on Dota2. Hundreds of neutral creatures wander throughout the whole map. The neutral creatures will grant hero Skill Books which can be consumed to learn a new skill or improve the skill level by one level for each Skill Book consumed.
