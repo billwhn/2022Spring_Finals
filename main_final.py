@@ -796,12 +796,29 @@ class Hero:
     def life_steal_regenerate(self, life_steal_amount: float) -> int:
         """
         When the hero gets some life steals, this will heal same amount HP for the hero.
+        However, after healing, the current HP cannot beyond the hero's max HP. It means the amount will
+        be reduced when reaching max HP.
 
         :param life_steal_amount: life steal amount
         :return: Actual damage caused
+        >>> monkey_king = HeroMonkeyKing(1)
+        >>> monkey_king.calculate_status()
+        >>> int(monkey_king.status["Current HP"])
+        524
+        >>> int(monkey_king.status["Max HP"])
+        524
+        >>> monkey_king.life_steal_regenerate(24)
+        0
+        >>> _ = monkey_king.taken_true_damage(11.0)
+        >>> monkey_king.life_steal_regenerate(24)
+        11
+        >>> _ = monkey_king.taken_true_damage(100.0)
+        >>> monkey_king.life_steal_regenerate(24)
+        24
         """
-        self.status["Current HP"] += life_steal_amount
-        actual_amount = round(life_steal_amount)
+        current_hp = self.status["Current HP"]
+        self.status["Current HP"] = min(current_hp + life_steal_amount, self.status["Max HP"])
+        actual_amount = round(self.status["Current HP"] - current_hp)
         return actual_amount
 
     def regenerate_and_curse(self, time_second: float, show_all_the_details=False) -> int:
