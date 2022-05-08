@@ -1437,6 +1437,18 @@ def curse_status(owner_hero: Hero, affected_hero: Hero, show_all_the_details=Fal
     :param affected_hero: the hero who is affected by the skill
     :param show_all_the_details: whether show the details of being affected in log or not
     :return: None
+    >>> monkey_king  = HeroMonkeyKing(10)
+    >>> life_stealer = HeroLifeStealer(10)
+    >>> monkey_king.learn_skill_curse_of_death(5)
+    >>> monkey_king.calculate_status()
+    >>> life_stealer.calculate_status()
+    >>> curse_status(monkey_king, life_stealer, False)
+    >>> life_stealer.other_negative_effect["Curse of Death"]
+    5
+    >>> life_stealer.other_negative_effect["Curse Reg Reduction"]
+    45
+    >>> life_stealer.other_negative_effect["Curse Damage"]
+    60
     """
     # only one Curse of Death will take effect
     # affected by two enemy heroes both learned Curse of Death, only the highest level corruption takes effect
