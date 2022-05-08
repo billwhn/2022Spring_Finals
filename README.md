@@ -9,7 +9,9 @@
 We put the classes and functions in main_final.py, and main function in for_running.py. You should be able to run the for_running.py directly, get the summaries in console and show plots. 
 
 If there is anything wrong, please contact us: 
+
 beihuaw2@illinois.edu, Beihua Wang
+
 bhwong3@illinois.edu, Billhonam Wong
 ## Team Members
 ![read_me_pics/group_members.png](read_me_pics/group_members.png)
