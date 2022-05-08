@@ -34,3 +34,20 @@ Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
 ![img_1.png](img_1.png)
+![img_4.png](img_4.png)
+## Variables
+### Fixed Variables
+Hero models & items ---
+The attributes for each hero model and each item are set by Dota2.
+
+Skill Effects ---
+The effect of each skill is set according to the RPG game as shown on last slide.
+### Controlled Variables
+Items ---
+The hero will equip what set of items.
+
+Hero Model and Hero Level --- 
+Which hero model the simulation will actually use and the hero level are manually set.
+
+Amount of Skill Books ---
+How many amount of skill books the Hero will get is manually set.
