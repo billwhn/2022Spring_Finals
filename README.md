@@ -71,9 +71,11 @@ Then we compare the winning rate in a bar chart:
 ![read_me_pics/MKBvsNoMKB.png](read_me_pics/MKBvsNoMKB.png)
 
 From the blue bar we can see, if a hero does not equip the MKB, the evasion is the strongest sub skill. And there is a huge difference when the hero equips the MKB, this can prove both two hypotheses are correct. And we can also know, when heroes can’t evade damage, the skills "attribute bonus" and "damage bonus" become more important.
+### Hypothesis 3
+We also compare the winning rate in a bar chart:
 ![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
-
-
+There it not an obvious difference at different stages, except "damage bonus" and "curse of death", this make sense, because in an earlier stage with lower hit point and less attack rounds, a lot of skills are not triggered for many times, so the power of "damage bonus" is simpler and more direct, and the "curse of death" deal damage per second, so with less attack rounds and total time in an earlier stage, it has poor effect.
+### Hypothesis 4
 
 # Appendix
 ## Illustration for More Detailed Game Mechanism
