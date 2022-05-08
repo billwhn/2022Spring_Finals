@@ -58,12 +58,18 @@ We have four main hypotheses:
 ### 4. Duel at different stages, the weight of main skills will vary
 We believe the Evasion is the best sub skill, and the Monkey king bar has an eighty percent chance to pierce through Evasion, so it will make the wining rate of Evasion decrease greatly. Third, in an earlier stage, heroes have less hit point, the duel will have fewer attack rounds and time, so the importance of different sub skills will change. Last, the importance of different main skills will also change because of the hero attributes growth in different stages.
 ### Hypotheses 1 & 2
-To easier test the hypotheses, we controlled the two hero models both monkey king and learned 60 skill books, the upper screenshot shows the result of the two heroes without MKB,
-The lower one shows the result with MKB, we can only focus on the right column, it is the wining rate for each skill, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
+To easier test hypotheses 1&2, we controlled the two hero models both monkey king and learned 60 skill books, the upper screenshot shows the duel result of the two heroes without MKB,
+The lower one shows the result with MKB, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
+Without monkey king bar:
 ![read_me_pics/level15.png](read_me_pics/level15.png)
+With monkey king bar:
 ![read_me_pics/MKB_result.png](read_me_pics/MKB_result.png)
-
+Then we compare the winning rate in a bar chart:
 ![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
+From the blue bar we can see, if a hero does not equip the MKB, the evasion is the strongest sub skill. And there is a huge difference when the hero equips the MKB, this can prove both two hypotheses are correct. And we can also know, when heroes can’t evade damage, the skills "attribute bonus" and "damage bonus" become more important.
+
+
+
 
 # Appendix
 ## Illustration for More Detailed Game Mechanism
