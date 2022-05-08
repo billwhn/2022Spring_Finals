@@ -475,6 +475,21 @@ class Hero:
 
         :param qty_of_books: how many skill books -Life Steal- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Life Steal" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_life_steal(6)
+        >>> hero_object.skill_list["Life Steal"]
+        6
+        >>> hero_object.attack_attachment["Life Steal"]
+        6
+        >>> hero_object.learn_skill_life_steal(13)
+        >>> hero_object.skill_list["Life Steal"]
+        10
+        >>> hero_object.attack_attachment["Life Steal"]
+        10
+        >>> hero_object.learn_skill_life_steal(1)
+
         """
         if not self.check_able_to_learn_skill_book("Life Steal"):
             return None
