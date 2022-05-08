@@ -832,6 +832,20 @@ class Hero:
         :param time_second: how mang seconds have passed
         :param show_all_the_details: show details of regenerate and damage or not
         :return: how many hit points the hero regenerated or lost
+        >>> monkey_king = HeroMonkeyKing(1)
+        >>> monkey_king.calculate_status()
+        >>> monkey_king.regenerate_and_curse(1, False)
+        3
+        >>> monkey_king.equip_heart_of_tarrasque(1)
+        >>> monkey_king.calculate_status()
+        >>> monkey_king.regenerate_and_curse(1, False)
+        34
+        >>> life_stealer = HeroLifeStealer(1)
+        >>> life_stealer.learn_skill_curse_of_death(10)
+        >>> life_stealer.calculate_status()
+        >>> curse_status(life_stealer, monkey_king)
+        >>> monkey_king.regenerate_and_curse(1, False)
+        -190
         """
         regenerate_hp = self.status["Regeneration"] * time_second
         if show_all_the_details:
@@ -980,6 +994,18 @@ class Hero:
         :param amount_of_main_skill: how many main skills the hero will get
         :param learn_ultimate_or_not: whether learn an ultimate skill or not (do not count in as amount_of_main_skill)
         :return: None
+        >>> hero_object = Hero(15)
+        >>> hero_object.roll_main_skill(3, False)
+        >>> len(hero_object.main_skill_list.keys())
+        3
+        >>> hero_object.ultimate_skill == ''
+        True
+        >>> hero_object_2 = Hero(15)
+        >>> hero_object_2.roll_main_skill(1, True)
+        >>> len(hero_object_2.main_skill_list.keys())
+        2
+        >>> hero_object_2.ultimate_skill == ''
+        False
         """
         count = 0
         while True:
