@@ -1185,7 +1185,27 @@ def aggregate_analyze(loop_times: int, hero_level: int,
                       hero_1_model: str, hero_2_model: str, hero_1_name: str, hero_2_name: str,
                       number_of_skill_books: int, number_of_main_skills: int, ultimate_skill: bool, items_dict: dict,
                       show_loop_aggregate_result=True, show_skill_list_each_time=False, show_log_or_not=False,
-                      show_all_the_details=False, show_regenerate_rs=False):
+                      show_all_the_details=False, show_regenerate_rs=False) -> None:
+    """
+    This function seals all the progress for the monte carlo simulation.
+
+    :param loop_times: how many times this simulation will repeat
+    :param hero_level: the hero level, from 1 to 30
+    :param hero_1_model: the model name for the first hero
+    :param hero_2_model: the model name for the second hero
+    :param hero_1_name: the nickname for the first hero
+    :param hero_2_name: the nickname for the second hero
+    :param number_of_skill_books: how many skill books the hero will get
+    :param number_of_main_skills: how many main skills the hero will get
+    :param ultimate_skill: whether the hero will learn an ultimate skill or not
+    :param items_dict: the items that the hero will equip
+    :param show_loop_aggregate_result: the items that the hero will equip
+    :param show_skill_list_each_time: for each simulation, show the skill list or not
+    :param show_log_or_not: for each attack, show aggregated damage log or not
+    :param show_all_the_details: for each attack, show how the damage is composed of or not
+    :param show_regenerate_rs: show log for hero's regeneration and curse damage or not
+    :return: None
+    """
     winning_count = {}
     winning_count_main_skill = {}
     winning_count_only = {}
