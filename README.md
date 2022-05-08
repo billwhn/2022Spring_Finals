@@ -23,19 +23,9 @@ The max level for a sub skill is 10, the skill level cannot exceed the hero’s 
 Killing the neutral creatures will grant hero Skill Books. Each Skill Book is bounded to a specific Sub Skill. Consuming a Skill Book can grant hero that Sub Skill. If the hero has already learned that Sub Skill, each Skill Book consumed will improve one skill level of that Sub Skill.
 For example, if a hero consumed 7 Skill Book-Armor Improving, he will have a Level 7 Sub Skill Armor Improving.
 ### Items
-There are various items in the game, which makes it impossible to simulate. Thus, we will simulate the duel only with two items: Monkey King Bar and Heart of Tarrasque.
-##### *Item - Monkey King Bar:
-Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
+There are various items in the game, which makes it impossible to simulate. Thus, we will simulate the duel only selected items, includes: Monkey King Bar, Heart of Tarrasque and so on.
 
-![read_me_pics/MKB.png](read_me_pics/MKB.png)
 
-(Source: https://liquipedia.net/dota2/Monkey_King_Bar)
-##### *Item - Heart of Tarrasque:
-Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
-
-![read_me_pics/heart.png](read_me_pics/heart.png)
-
-(Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
 ![read_me_pics/assumptions.png](read_me_pics/assumptions.png)
 ![read_me_pics/game_phases.png](read_me_pics/game_phases.png)
@@ -92,3 +82,16 @@ Sub-skills are the skills gained by consuming Skill Books. These skills are defi
 Main Skills are set by Dota2.
 ## Hero Models
 ### Monkey King
+## Items
+### Monkey King Bar:
+Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
+
+![read_me_pics/MKB.png](read_me_pics/MKB.png)
+
+(Source: https://liquipedia.net/dota2/Monkey_King_Bar)
+##### *Item - Heart of Tarrasque:
+Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
+
+![read_me_pics/heart.png](read_me_pics/heart.png)
+
+(Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
