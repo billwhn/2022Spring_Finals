@@ -1719,31 +1719,14 @@ def aggregate_analyze(loop_times: int, hero_level: int,
         total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
                                                            hero_2.main_skill_list, hero_1.main_skill_list)
 
-        def update_dict_by_list(dict_to_update, source_list):
-            for skill_name in source_list:
-                if skill_name in dict_to_update.keys():
-                    dict_to_update[skill_name] += 1
-                else:
-                    dict_to_update[skill_name] = 1
-            return dict_to_update
-
-        winning_count = update_dict_by_list(winning_count, skill_list)
-
-        def update_dict_by_list_only(dict_to_update, source_list, rival_list):
-            for skill_name in source_list:
-                if skill_name not in rival_list:
-                    if skill_name in dict_to_update.keys():
-                        dict_to_update[skill_name] += 1
-                    else:
-                        dict_to_update[skill_name] = 1
-            return dict_to_update
-
         winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
 
         winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
 
         winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
                                                                  main_skill_list, main_skill_list2)
+
+        winning_count = update_dict_by_list(winning_count, skill_list)
 
     if show_loop_aggregate_result:
         # winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
