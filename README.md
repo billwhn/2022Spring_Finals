@@ -1,6 +1,9 @@
 # Monte Carlo Simulation of a Duel in Game Background
 #### Game: Battle or Mirkwood (Based on Dota2 Engine)
+![read_me_pics/dota2.png](read_me_pics/dota2.png)
 #### 2022 Spring Final Project
+![read_me_pics/battle_of_mirkwood.png](read_me_pics/battle_of_mirkwood.png)
+
 *Note: The data is up to 05/05/2022, some changes may occur since Dota2 is always updating.
 ## Team Members
 ![read_me_pics/group_members.png](read_me_pics/group_members.png)
