@@ -86,13 +86,31 @@ Sub-skills are the skills gained by consuming Skill Books. These skills are defi
 ![read_me_pics/sub_skills.png](read_me_pics/sub_skills.png)
 
 ## Main SKills
-Main Skills are set by Dota2.
+Main Skills are set by Dota2. The main skills implemented includes:
+### Jingu Mastery (Skill of Monkey King in Dota2 https://liquipedia.net/dota2/Monkey_King)
+![read_me_pics/jingu_mastery.png](read_me_pics/jingu_mastery.png)
+- Upon the fourth hit on the same enemy hero, Monkey King earns four charged attacks that have bonus damage and life steal.
+![read_me_pics/jingu_mastery_math.png](read_me_pics/jingu_mastery_math.png)
+### Other Main Skills Implemented
+Feast (Skill of Life Stealer in Dota2 https://liquipedia.net/dota2/Lifestealer)
+
+Moment of Courage (Skill of Legion Commander in Dota2 https://liquipedia.net/dota2/Legion_Commander)
+
+Coup De Grace (Skill of Phantom Assassin in Dota2 https://liquipedia.net/dota2/Phantom_Assassin)
+
+Grow (Skill of Tiny in Dota2 https://liquipedia.net/dota2/Tiny)
 ## Hero Models
 ### Monkey King
 ![read_me_pics/monkey_king.png](read_me_pics/monkey_king.png)
 ![read_me_pics/monkey_king_attr.png](read_me_pics/monkey_king_attr.png)
 
 (Source: https://liquipedia.net/dota2/Monkey_King)
+### Other Models Implemented
+Life Stealer (https://liquipedia.net/dota2/Lifestealer)
+
+Bounty Hunter (https://liquipedia.net/dota2/Bounty_Hunter)
+
+Treant Protector (https://liquipedia.net/dota2/Treant_Protector)
 ## Items
 ### Monkey King Bar:
 Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
