@@ -1407,6 +1407,30 @@ def corruption_status(owner_hero: Hero, affected_hero: Hero, show_all_the_detail
     :param affected_hero: the hero who is affected by the skill
     :param show_all_the_details: whether show the details of being affected in log or not
     :return: None
+    >>> life_stealer = HeroLifeStealer(10)
+    >>> life_stealer.calculate_status()
+    >>> monkey_king = HeroMonkeyKing(10)
+    >>> monkey_king.calculate_status()
+    >>> bounty = HeroBountyHunter(10)
+    >>> bounty.calculate_status()
+    >>> monkey_king.learn_skill_corruption(5)
+    >>> life_stealer.status["Armor"]
+    7.784
+    >>> corruption_status(monkey_king, life_stealer, False)
+    >>> life_stealer.other_negative_effect["Corruption"]
+    5
+    >>> life_stealer.other_negative_effect["Reduced Armor"]
+    10
+    >>> life_stealer.status["Armor"]
+    -2.216
+    >>> bounty.learn_skill_corruption(8)
+    >>> corruption_status(bounty, life_stealer, False)
+    >>> life_stealer.other_negative_effect["Corruption"]
+    8
+    >>> life_stealer.other_negative_effect["Reduced Armor"]
+    16
+    >>> round(life_stealer.status["Armor"], 3)
+    -8.216
     """
     # only one Corruption will take effect
     # affected by two enemy heroes both learned Corruption, only the highest level corruption takes effect
