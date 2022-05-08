@@ -603,7 +603,7 @@ class Hero:
                     self.learn_main_skill_moment_of_courage()
                     count += 1
         if learn_ultimate_or_not:
-            randon_int = randon_int(1, 2)
+            randon_int = random.randint(1, 2)
             if randon_int == 1:
                 if "Coup de Grace" not in self.main_skill_list.keys():
                     self.learn_main_skill_coup_de_grace()
@@ -899,7 +899,7 @@ def pierce_possibility_mkb(amount_of_mkb: int) -> float:
 def trigger_moment_of_courage(attack_hero: Hero, defend_hero: Hero,
                               show_log_or_not=False, show_all_the_details=False) -> None:
     """
-    To judge if main skill -Monment of Courage- is triggered.
+    To judge if main skill -Moment of Courage- is triggered.
 
     :param attack_hero: the attacker hero
     :param defend_hero: the defender hero
