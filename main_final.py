@@ -1881,8 +1881,9 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
                   ' ' * (20 - len('Total Occurrence')),
                   ' ' * (20 - len('Winning Rate)'))))
     for skill in winner_dict.keys():
-        rate_occ_two_side_total = round(int(total_count_two_sides_dict[skill]) / (loop_times * 2) * 100, 2)
         rate_winner_side = round(int(winner_dict[skill]) / total_count_dict[skill] * 100, 2)
+        rate_occ_two_side_total = round(int(total_count_two_sides_dict[skill]) / (loop_times * 2) * 100, 2)
+
         dict_for_plot[skill] = rate_winner_side
         print("{}{}{}{}{}{}{}%{}{}%"
               .format(skill, ' ' * (25 - len(skill)),
@@ -1891,6 +1892,19 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
                       rate_winner_side, ' ' * (18 - len(str(rate_winner_side))),
                       rate_occ_two_side_total
                       ))
+    if len(total_count_dict.keys()) == 0:
+        for skill in total_count_two_sides_dict.keys():
+            rate_occ_two_side_total = round(int(total_count_two_sides_dict[skill]) / (loop_times * 2) * 100, 2)
+            winner_dict[skill] = "-"
+            total_count_dict[skill] = "-"
+            rate_winner_side = ""
+            print("{}{}{}{}{}{}{}-{}{}%"
+                  .format(skill, ' ' * (25 - len(skill)),
+                          winner_dict[skill], ' ' * (15 - len(str(winner_dict[skill]))),
+                          total_count_dict[skill], ' ' * (20 - len(str(total_count_dict[skill]))),
+                          rate_winner_side, ' ' * (18 - len(str(rate_winner_side))),
+                          rate_occ_two_side_total
+                          ))
 
     return dict_for_plot
 
