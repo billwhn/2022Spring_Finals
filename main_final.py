@@ -80,6 +80,10 @@ class Hero:
 
         :param name: hero's nickname
         :return: None
+        >>> hero_object = Hero(1)
+        >>> hero_object.set_name("Test Hero Name")
+        >>> hero_object.name == "Test Hero Name"
+        True
         """
         self.name = name
 
@@ -89,6 +93,12 @@ class Hero:
 
         :param hero_level: hero's level
         :return: None
+        >>> hero_object = Hero(1)
+        >>> hero_object.hero_level == 1
+        True
+        >>> hero_object.set_hero_level(6)
+        >>> hero_object.hero_level == 6
+        True
         """
         self.hero_level = hero_level
 
