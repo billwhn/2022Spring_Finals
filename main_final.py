@@ -383,6 +383,24 @@ class Hero:
 
         :param qty_of_books: how many skill books -Fire!- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Fire!" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_fire(6)
+        >>> hero_object.skill_list["Fire!"]
+        6
+        >>> hero_object.other_positive_effect["Ignore Armor"]
+        40
+        >>> hero_object.learn_skill_fire(2)
+        >>> hero_object.other_positive_effect["Ignore Armor"]
+        50
+        >>> hero_object.learn_skill_fire(13)
+        >>> hero_object.skill_list["Fire!"]
+        10
+        >>> hero_object.other_positive_effect["Ignore Armor"]
+        60
+        >>> hero_object.learn_skill_fire(1)
+
         """
         if not self.check_able_to_learn_skill_book("Fire!"):
             return None
