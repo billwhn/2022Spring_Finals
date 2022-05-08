@@ -65,8 +65,10 @@ All the heroes have a 25% basic Magic Resistance. Since the item system is limit
 ### Strength & Agility
 Strength increases maximum health and health regeneration while Agility increases armor and attack speed. If Strength or Agility is the main attribute (primary attribute), it will also increase damage.
 
+![read_me_pics/strength_icon.png](read_me_pics/strength_icon.png)
 Each Strength gives: +20 Health (Hit Points), +0.1 Health Regeneration
 
+![read_me_pics/agility_icon.png](read_me_pics/agility_icon.png)
 Each Agility gives: +0.16 Armor, +1 Attack Speed
 ### Attack Speed
 Attack Interval = Base Attack Time ÷ (1 + (Increased Attack Speed ÷ 100))
@@ -87,6 +89,8 @@ Sub-skills are the skills gained by consuming Skill Books. These skills are defi
 Main Skills are set by Dota2.
 ## Hero Models
 ### Monkey King
+![read_me_pics/monkey_king.png](read_me_pics/monkey_king.png)
+![read_me_pics/monkey_king_attr.png](read_me_pics/monkey_king_attr.png)
 ## Items
 ### Monkey King Bar:
 Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce through evasion and deal 70 bonus magical damage.
