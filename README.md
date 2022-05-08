@@ -33,8 +33,8 @@ Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
 
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
-![img_1.png](img_1.png)
-![img_4.png](img_4.png)
+![read_me_pics/img_1.png](read_me_pics/img_1.png)
+![read_me_pics/img_4.png](read_me_pics/img_4.png)
 ## Variables
 ### Fixed Variables
 Hero models & items ---
