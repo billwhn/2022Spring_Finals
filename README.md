@@ -58,7 +58,7 @@ We have four main hypotheses:
 ### 4. Duel at different stages, the weight of main skills will vary
 We believe the Evasion is the best sub skill, and the Monkey king bar has an eighty percent chance to pierce through Evasion, so it will make the wining rate of Evasion decrease greatly. Third, in an earlier stage, heroes have less hit point, the duel will have fewer attack rounds and time, so the importance of different sub skills will change. Last, the importance of different main skills will also change because of the hero attributes growth in different stages.
 ### Hypotheses 1 & 2
-To easier test hypotheses 1&2, we controlled the two hero models both level 15 monkey king, learned 60 skill books and same one main skill "JinGu Mastery", the upper screenshot shows the duel result of the two heroes without MKB, the lower one shows the result with MKB, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
+To easier test hypotheses 1&2, we controlled the two hero models both level 15 monkey king, learned 60 skill books and same one main skill "JinGu Mastery", the upper screenshot shows the duel result of the two heroes without MKB, the lower one shows the result with MKB, when we calculate the winning rate of each skill, we removed the record that both two heroes learn that skill.
 
 Without monkey king bar:
 ![read_me_pics/level15.png](read_me_pics/level15.png)
