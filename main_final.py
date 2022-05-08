@@ -669,6 +669,14 @@ class Hero:
 
         :param equip_or_take_off: 1 means equip Satanic, -1 means take off Satanic, could be 2 or more
         :return: None
+        >>> hero_object = Hero()
+        >>> hero_object.equip_satanic(1)
+        >>> hero_object.bonus_strength
+        25
+        >>> hero_object.bonus_damage_without_main_attribute
+        45
+        >>> hero_object.life_steal_rate
+        25
         """
         self.bonus_strength += 25 * equip_or_take_off
         self.life_steal_rate += 25 * equip_or_take_off
