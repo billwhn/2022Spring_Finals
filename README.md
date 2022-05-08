@@ -53,6 +53,8 @@ How many amount of skill books the Hero will get is manually set.
 ### Armor
 Reduce physical damage the hero takes.
 
+![read_me_pics/physical_resis_formula.png](read_me_pics/physical_resis_formula.png)
+
 (Source: https://liquipedia.net/dota2/Armor)
 ### Magic Resistance
 Reduces Magical damage the hero takes.
@@ -78,6 +80,9 @@ Magic Damage: WIll be compromised by Magic Resistance
 True Damage: Will not be compromised by anything.
 ## Illustration for sub-Skills
 Sub-skills are the skills gained by consuming Skill Books. These skills are defined by the RPG game, not Dota2 itself.
+
+![read_me_pics/sub_skills.png](read_me_pics/sub_skills.png)
+
 ## Main SKills
 Main Skills are set by Dota2.
 ## Hero Models
