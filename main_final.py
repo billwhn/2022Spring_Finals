@@ -440,6 +440,26 @@ class Hero:
 
         :param qty_of_books: how many skill books -Damage Bonus- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Damage Bonus" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_damage_bonus(3)
+        >>> hero_object.skill_list["Damage Bonus"]
+        3
+        >>> hero_object.bonus_damage_without_main_attribute
+        105
+        >>> hero_object.learn_skill_damage_bonus(4)
+        >>> hero_object.skill_list["Damage Bonus"]
+        7
+        >>> hero_object.bonus_damage_without_main_attribute
+        205
+        >>> hero_object.learn_skill_damage_bonus(13)
+        >>> hero_object.skill_list["Damage Bonus"]
+        10
+        >>> hero_object.bonus_damage_without_main_attribute
+        280
+        >>> hero_object.learn_skill_damage_bonus(1)
+
         """
         if not self.check_able_to_learn_skill_book("Damage Bonus"):
             return None
