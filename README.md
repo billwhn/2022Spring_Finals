@@ -3,9 +3,7 @@
 #### 2022 Spring Final Project
 *Note: The data is up to 05/05/2022, some changes may occur since Dota2 is always updating.
 ## Team Members
-Beihua Wang             (Github: iriscity97)
-
-Bill Ho Nam Wong		(Github: billwhn)
+![img_2.png](img_2.png)
 ## Game Introduction
 This is a simulation of a duel in a game background.
 Battle Of Mirkwood is a Role Play Game based on Dota2. Hundreds of neutral creatures wander throughout the whole map. The neutral creatures will grant hero Skill Books which can be consumed to learn a new skill or improve the skill level by one level for each Skill Book consumed.
@@ -35,4 +33,4 @@ Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
 
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
-![img.png](img.png)
+![img_1.png](img_1.png)
