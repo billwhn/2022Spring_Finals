@@ -1420,6 +1420,13 @@ def duel(hero_1: Hero, hero_2: Hero,
     True
     >>> life_stealer.status["Current HP"] < 0
     True
+    >>> treant_1 = HeroTreantProtector(1)
+    >>> treant_2 = HeroTreantProtector(1)
+    >>> treant_1.calculate_status()
+    >>> treant_2.calculate_status()
+    >>> _, _ = duel(treant_1, treant_2)
+    >>> treant_1.status["Current HP"] <= 0 or treant_2.status["Current HP"] <= 0
+    True
     """
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
@@ -1879,7 +1886,7 @@ def show_dict_report(report_name: str, winner_dict: dict, total_count_dict: dict
         rate_occ_two_side_total = round(int(total_count_two_sides_dict[skill]) / (loop_times * 2) * 100, 2)
         rate_winner_side = round(int(winner_dict[skill]) / total_count_dict[skill] * 100, 2)
         plot[skill] = rate_winner_side
-        print("{}{}{}{}{}{}{}%{}{}%"
+        print("{}{}{}{}{}{}{}%"
               .format(skill, ' ' * (25 - len(skill)),
                       winner_dict[skill], ' ' * (15 - len(str(winner_dict[skill]))),
                       total_count_dict[skill], ' ' * (20 - len(str(total_count_dict[skill]))),
