@@ -87,7 +87,8 @@ Sub-skills are the skills gained by consuming Skill Books. These skills are defi
 
 ## Main SKills
 Main Skills are set by Dota2. The main skills implemented includes:
-### Jingu Mastery (Skill of Monkey King in Dota2 https://liquipedia.net/dota2/Monkey_King)
+### Jingu Mastery 
+This is a skill of Monkey King in Dota2 (https://liquipedia.net/dota2/Monkey_King).
 ![read_me_pics/jingu_mastery.png](read_me_pics/jingu_mastery.png)
 - Upon the fourth hit on the same enemy hero, Monkey King earns four charged attacks that have bonus damage and life steal.
 ![read_me_pics/jingu_mastery_math.png](read_me_pics/jingu_mastery_math.png)
