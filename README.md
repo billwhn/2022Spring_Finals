@@ -5,6 +5,12 @@
 ![read_me_pics/battle_of_mirkwood.png](read_me_pics/battle_of_mirkwood.png)
 
 *Note: The data is up to 05/05/2022, some changes may occur since Dota2 is always updating.
+
+We put the classes and functions in main_final.py, and main function in for_running.py. You should be able to run the for_running.py directly, get the summaries in console and show plots. 
+
+If there is anything wrong, please contact us: 
+beihuaw2@illinois.edu, Beihua Wang
+bhwong3@illinois.edu, Billhonam Wong
 ## Team Members
 ![read_me_pics/group_members.png](read_me_pics/group_members.png)
 ## Game Introduction
@@ -55,7 +61,7 @@ We have four main hypotheses:
 ### 1. Evasion is the strongest sub skill
 ### 2. If heroes equip the item "MKB", the winning rate of Evasion will decrease greatly
 ### 3. Duel at different stages, the weight of sub skills will vary
-### 4. Duel at different stages, the weight of main skills will vary
+### 4. Duel at different stages, the weight of main skills will change greatly
 We believe the Evasion is the best sub skill, and the Monkey king bar has an eighty percent chance to pierce through Evasion, so it will make the wining rate of Evasion decrease greatly. Third, in an earlier stage, heroes have less hit point, the duel will have fewer attack rounds and time, so the importance of different sub skills will change. Last, the importance of different main skills will also change because of the hero attributes growth in different stages.
 ### Hypotheses 1 & 2
 To easier test hypotheses 1&2, we controlled the two hero models both level 15 monkey king, learned 60 skill books and same one main skill "JinGu Mastery", the upper screenshot shows the duel result of the two heroes without MKB, the lower one shows the result with MKB, when we calculate the winning rate of each skill, we removed the record that both two heroes learn that skill.
@@ -87,7 +93,7 @@ Level 6:
 Compare main skills in the plot:
 ![read_me_pics/15mainVS6main.png](read_me_pics/15mainVS6main.png)
 
-In the early stage of level 6, the attack damage of heroes is generally low, and critical benefits is extremely low, while the "JinGu Mastery" can provide a high attack damage bonus. At level 15, as the hero level increases, the importance of the additional attack damage provided by "JinGu Mastery" is reduced, although it is still ahead but loses its absolute leading position. However, the hypothesis 4 is wrong, the importance of main skills don't change.
+In the early stage of level 6, the attack damage of heroes is generally low, and critical benefits is extremely low, while the "JinGu Mastery" can provide a high attack damage bonus. At level 15, as the hero level increases, the importance of the additional attack damage provided by "JinGu Mastery" is reduced, although it is still ahead but loses its absolute leading position. However, the hypothesis 4 is wrong, the importance of main skills don't change a lot.
 
 # Appendix
 ## Illustration for More Detailed Game Mechanism
