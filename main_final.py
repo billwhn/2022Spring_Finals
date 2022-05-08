@@ -1328,6 +1328,15 @@ def duel(hero_1: Hero, hero_2: Hero,
     :param show_all_the_details: whether show the details of attack damage composition in log or not
     :param show_regenerate_rs: whether show the details of regeneration in log or not
     :return: the two hero's status after the duel is over
+    >>> monkey_king = HeroMonkeyKing(5)
+    >>> life_stealer = HeroLifeStealer(5)
+    >>> monkey_king.calculate_status()
+    >>> life_stealer.calculate_status()
+    >>> _, _ = duel(monkey_king, life_stealer)
+    >>> monkey_king.status["Current HP"] > 100
+    True
+    >>> life_stealer.status["Current HP"] < 0
+    True
     """
     # before duel start, calculate various long-lasting effects
     # for example, Corruption (reduce armor)
