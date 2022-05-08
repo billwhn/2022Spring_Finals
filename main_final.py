@@ -855,6 +855,10 @@ class Hero:
         When hero learns main skill -Feast-.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(5)
+        >>> life_stealer.learn_main_skill_feast()
+        >>> life_stealer.main_skill_list["Feast"]
+        3
         """
         self.main_skill_list["Feast"] = min(4, (self.hero_level + 1) // 2)
 
@@ -863,6 +867,12 @@ class Hero:
         When hero learns main skill -Blade Dance-.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(5)
+        >>> life_stealer.learn_main_skill_blade_dance()
+        >>> life_stealer.main_skill_list["Blade Dance"]
+        3
+        >>> life_stealer.critical_list["Blade Dance"]
+        [30, 180]
         """
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["Blade Dance"] = skill_level
@@ -874,6 +884,12 @@ class Hero:
         When hero learns main skill -Jingu Mastery-.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(9)
+        >>> life_stealer.learn_main_skill_jingu_mastery()
+        >>> life_stealer.main_skill_list["JinGu Mastery"]
+        4
+        >>> life_stealer.other_positive_effect["JinGu Mastery Attack Times"]
+        -5
         """
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["JinGu Mastery"] = skill_level
@@ -884,6 +900,10 @@ class Hero:
         When hero learns main skill -Moment of Courage-.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(7)
+        >>> life_stealer.learn_main_skill_moment_of_courage()
+        >>> life_stealer.main_skill_list["Moment of Courage"]
+        4
         """
         skill_level = min(4, (self.hero_level + 1) // 2)
         self.main_skill_list["Moment of Courage"] = skill_level
@@ -894,6 +914,19 @@ class Hero:
         This is an ultimate skill, only can be learned at level 6 and only one ultimate skill is allowed.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(5)
+        >>> life_stealer.learn_main_skill_coup_de_grace()
+        >>> "Coup de Grace" in life_stealer.main_skill_list.keys()
+        False
+        >>> life_stealer.set_hero_level(6)
+        >>> life_stealer.learn_main_skill_grow()
+        >>> life_stealer.learn_main_skill_coup_de_grace()
+        >>> "Coup de Grace" in life_stealer.main_skill_list.keys()
+        False
+        >>> monkey_king = HeroMonkeyKing(6)
+        >>> monkey_king.learn_main_skill_coup_de_grace()
+        >>> monkey_king.main_skill_list["Coup de Grace"]
+        1
         """
         if self.hero_level < 6:
             return None
@@ -904,6 +937,7 @@ class Hero:
         # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
         self.critical_list["Coup de Grace"] = [15, 75 + 125 * skill_level]
         self.ultimate_skill = True
+        return None
 
     def learn_main_skill_grow(self):
         """
@@ -911,6 +945,19 @@ class Hero:
         This is an ultimate skill, only can be learned at level 6 and only one ultimate skill is allowed.
 
         :return: None
+        >>> life_stealer = HeroLifeStealer(5)
+        >>> life_stealer.learn_main_skill_grow()
+        >>> "Grow" in life_stealer.main_skill_list.keys()
+        False
+        >>> life_stealer.set_hero_level(6)
+        >>> life_stealer.learn_main_skill_coup_de_grace()
+        >>> life_stealer.learn_main_skill_grow()
+        >>> "Grow" in life_stealer.main_skill_list.keys()
+        False
+        >>> monkey_king = HeroMonkeyKing(15)
+        >>> monkey_king.learn_main_skill_grow()
+        >>> monkey_king.main_skill_list["Grow"]
+        2
         """
         if self.hero_level < 6:
             return None
@@ -922,6 +969,7 @@ class Hero:
         self.bonus_damage_without_main_attribute += 40 * skill_level - 10
         self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
         self.ultimate_skill = True
+        return None
 
     def roll_main_skill(self, amount_of_main_skill: int, learn_ultimate_or_not=False) -> None:
         """
