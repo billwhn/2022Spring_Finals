@@ -1754,15 +1754,13 @@ def aggregate_analyze(loop_times: int, hero_level: int,
         total_occurrence_only = update_only_dict(total_occurrence_only, hero_2.skill_list, hero_1.skill_list)
 
         total_occurrence_main_skill_only = update_only_dict(total_occurrence_main_skill_only,
-                                                           hero_1.main_skill_list, hero_2.main_skill_list)
+                                                            hero_1.main_skill_list, hero_2.main_skill_list)
         total_occurrence_main_skill_only = update_only_dict(total_occurrence_main_skill_only,
-                                                           hero_2.main_skill_list, hero_1.main_skill_list)
+                                                            hero_2.main_skill_list, hero_1.main_skill_list)
 
         winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
         winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
                                                                  main_skill_list, main_skill_list2)
-
-
 
     if show_loop_aggregate_result:
         # winning_count = dict(sorted(winning_count.items(), key=lambda w: (w[1], w[0])))
@@ -1835,7 +1833,7 @@ def creat_plot(result1: dict, result2: dict) -> None:
     for x, y in enumerate(y_data2):
         plt.text(x + bar_width, y + 100, '%s' % y, ha='center', va='top')
 
-    plt.xticks(np.arange(len(x_data))+bar_width/2, x_data, rotation=45)
+    plt.xticks(np.arange(len(x_data)) + bar_width / 2, x_data, rotation=45)
     plt.title("Winning Rate Summary")
     plt.xlabel("Skills")
     plt.ylabel("Winning Rate")
@@ -1843,6 +1841,3 @@ def creat_plot(result1: dict, result2: dict) -> None:
     plt.subplots_adjust(left=0.1, bottom=0.25)
 
     plt.show()
-
-
-
