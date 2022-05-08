@@ -60,14 +60,18 @@ We believe the Evasion is the best sub skill, and the Monkey king bar has an eig
 ### Hypotheses 1 & 2
 To easier test hypotheses 1&2, we controlled the two hero models both monkey king and learned 60 skill books, the upper screenshot shows the duel result of the two heroes without MKB,
 The lower one shows the result with MKB, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
+
 Without monkey king bar:
 ![read_me_pics/level15.png](read_me_pics/level15.png)
+
 With monkey king bar:
 ![read_me_pics/MKB_result.png](read_me_pics/MKB_result.png)
-Then we compare the winning rate in a bar chart:
-![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
-From the blue bar we can see, if a hero does not equip the MKB, the evasion is the strongest sub skill. And there is a huge difference when the hero equips the MKB, this can prove both two hypotheses are correct. And we can also know, when heroes can’t evade damage, the skills "attribute bonus" and "damage bonus" become more important.
 
+Then we compare the winning rate in a bar chart:
+![read_me_pics/MKBvsNoMKB.png](read_me_pics/MKBvsNoMKB.png)
+
+From the blue bar we can see, if a hero does not equip the MKB, the evasion is the strongest sub skill. And there is a huge difference when the hero equips the MKB, this can prove both two hypotheses are correct. And we can also know, when heroes can’t evade damage, the skills "attribute bonus" and "damage bonus" become more important.
+![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
 
 
 
