@@ -112,6 +112,16 @@ class Hero:
         :return: [original_level, new_level]
                  original_level: the level of this skill before consuming the skill book(s);
                  new_level: the level of this skill after consuming the skill book(s)
+        >>> hero_object = Hero(5)
+        >>> hero_object.learn_skill_evasion(5)
+        >>> hero_object.learn_skill_book("Evasion", 3)
+        [5, 8]
+        >>> hero_object.learn_skill_book("Not Exist Test Skill", 8)
+        [0, 8]
+        >>> hero_object.learn_skill_book("Not Exist Test Skill", 5)
+        [8, 10]
+        >>> hero_object.learn_skill_book("Not Exist Test Skill Second", 13)
+        [0, 10]
         """
         if skill_name in self.skill_list.keys():
             # learned before
@@ -131,6 +141,19 @@ class Hero:
 
         :param skill_name: the skill name that this skill book is bounded to
         :return: boolean value, True means hero can consume this book
+        >>> hero_object = Hero(10)
+        >>> hero_object.learn_skill_evasion(10)
+        >>> hero_object.check_able_to_learn_skill_book("Evasion")
+        False
+        >>> hero_object.learn_skill_attribute_bonus(5)
+        >>> hero_object.check_able_to_learn_skill_book("Attribute Bonus")
+        True
+        >>> hero_object.learn_skill_crushing(3)
+        >>> hero_object.check_able_to_learn_skill_book("Armor Bonus")
+        True
+        >>> hero_object.learn_skill_corruption(5) # now already learned 4 sub skills, no longer able to learn new skill
+        >>> hero_object.check_able_to_learn_skill_book("Armor Bonus")
+        False
         """
         if skill_name in self.skill_list.keys():
             if self.skill_list[skill_name] == 10:
