@@ -58,8 +58,7 @@ We have four main hypotheses:
 ### 4. Duel at different stages, the weight of main skills will vary
 We believe the Evasion is the best sub skill, and the Monkey king bar has an eighty percent chance to pierce through Evasion, so it will make the wining rate of Evasion decrease greatly. Third, in an earlier stage, heroes have less hit point, the duel will have fewer attack rounds and time, so the importance of different sub skills will change. Last, the importance of different main skills will also change because of the hero attributes growth in different stages.
 ### Hypotheses 1 & 2
-To easier test hypotheses 1&2, we controlled the two hero models both monkey king and learned 60 skill books, the upper screenshot shows the duel result of the two heroes without MKB,
-The lower one shows the result with MKB, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
+To easier test hypotheses 1&2, we controlled the two hero models both level 15 monkey king, learned 60 skill books and same one main skill "JinGu Mastery", the upper screenshot shows the duel result of the two heroes without MKB, the lower one shows the result with MKB, when we calculate the winning rate, we removed the record that both two heroes learn the skill.
 
 Without monkey king bar:
 ![read_me_pics/level15.png](read_me_pics/level15.png)
@@ -72,10 +71,23 @@ Then we compare the winning rate in a bar chart:
 
 From the blue bar we can see, if a hero does not equip the MKB, the evasion is the strongest sub skill. And there is a huge difference when the hero equips the MKB, this can prove both two hypotheses are correct. And we can also know, when heroes can’t evade damage, the skills "attribute bonus" and "damage bonus" become more important.
 ### Hypothesis 3
-We also compare the winning rate in a bar chart:
+We still controlled the two hero models both monkey king and one main skill "JinGu Mastery", but one is level 15 with 50 skill books, the other one is level 6 with 20 skill books, then we also compare the winning rate in a bar chart:
 ![read_me_pics/6vs15.png](read_me_pics/6vs15.png)
-There it not an obvious difference at different stages, except "damage bonus" and "curse of death", this make sense, because in an earlier stage with lower hit point and less attack rounds, a lot of skills are not triggered for many times, so the power of "damage bonus" is simpler and more direct, and the "curse of death" deal damage per second, so with less attack rounds and total time in an earlier stage, it has poor effect.
+
+There it not an obvious difference at different stages, except "damage bonus" and "curse of death", this make sense, because in an earlier stage with lower hit point and less attack rounds, a lot of skills are not triggered for many times, so the power of "damage bonus" is simpler and more direct, and the "curse of death" deal damage per second, so with less attack rounds and total time in an earlier stage, it has poor effect. The hypothesis 3 is partially correct.
 ### Hypothesis 4
+To test Hypothesis 4, we changed the two heroes to BountyHunter, they learn the main skills randomly, the upper screenshot shows the duel result of two level 15 heroes, the lower one shows the result of two level 6 heroes.
+
+Level 15:
+![read_me_pics/level15main.png](read_me_pics/level15main.png)
+
+Level 6:
+![read_me_pics/level6main.png](read_me_pics/level6main.png)
+
+Compare main skills in the plot:
+![read_me_pics/15mainVS6main.png](read_me_pics/15mainVS6main.png)
+
+In the early stage of level 6, the attack damage of heroes is generally low, and critical benefits is extremely low, while the "JinGu Mastery" can provide a high attack damage bonus. At level 15, as the hero level increases, the importance of the additional attack damage provided by "JinGu Mastery" is reduced, although it is still ahead but loses its absolute leading position. However, the hypothesis 4 is wrong, the importance of main skills don't change.
 
 # Appendix
 ## Illustration for More Detailed Game Mechanism
