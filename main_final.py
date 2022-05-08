@@ -304,6 +304,26 @@ class Hero:
 
         :param qty_of_books: how many skill books -Thorn Armor- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Thorn Armor" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_thorn_armor(6)
+        >>> "Thorn Armor" in hero_object.skill_list.keys()
+        True
+        >>> hero_object.bonus_armor_without_agility
+        6
+        >>> hero_object.other_positive_effect["Physical Damage Reflection"]
+        30
+        >>> hero_object.learn_skill_thorn_armor(2)
+        >>> hero_object.bonus_armor_without_agility
+        8
+        >>> hero_object.learn_skill_thorn_armor(13)
+        >>> hero_object.skill_list["Thorn Armor"]
+        10
+        >>> hero_object.other_positive_effect["Physical Damage Reflection"]
+        50
+        >>> hero_object.learn_skill_thorn_armor(1)
+
         """
         if not self.check_able_to_learn_skill_book("Thorn Armor"):
             return None
