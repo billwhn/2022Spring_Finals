@@ -3,7 +3,7 @@
 #### 2022 Spring Final Project
 *Note: The data is up to 05/05/2022, some changes may occur since Dota2 is always updating.
 ## Team Members
-![read_me_pics/img_3.png](read_me_pics/img_3.png)
+![read_me_pics/group_members.png](read_me_pics/group_members.png)
 ## Game Introduction
 This is a simulation of a duel in a game background.
 Battle Of Mirkwood is a Role Play Game based on Dota2. Hundreds of neutral creatures wander throughout the whole map. The neutral creatures will grant hero Skill Books which can be consumed to learn a new skill or improve the skill level by one level for each Skill Book consumed.
@@ -33,8 +33,8 @@ Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
 
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
 ## Basic Assumptions
-![read_me_pics/img_1.png](read_me_pics/img_1.png)
-![read_me_pics/img_4.png](read_me_pics/img_4.png)
+![read_me_pics/assumptions.png](read_me_pics/assumptions.png)
+![read_me_pics/game_phases.png](read_me_pics/game_phases.png)
 ## Variables
 ### Fixed Variables
 Hero models & items ---
@@ -52,6 +52,7 @@ Which hero model the simulation will actually use and the hero level are manuall
 Amount of Skill Books ---
 How many amount of skill books the Hero will get is manually set.
 ### Variables with Randomness
+![read_me_pics/random_variables.png](read_me_pics/random_variables.png)
 ## Hypothesis
 # Appendix
 ## Illustration for More Detailed Game Mechanism
