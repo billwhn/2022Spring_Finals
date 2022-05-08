@@ -94,9 +94,15 @@ Damage + 40, Attack Speed + 45. Grants each attack an 80% chance to pierce throu
 ![read_me_pics/MKB.png](read_me_pics/MKB.png)
 
 (Source: https://liquipedia.net/dota2/Monkey_King_Bar)
-##### *Item - Heart of Tarrasque:
+### Heart of Tarrasque:
 Strength + 45, Health+ 250, Health Regen+ 1.6% Max Health Regen
 
 ![read_me_pics/heart.png](read_me_pics/heart.png)
 
 (Source: https://liquipedia.net/dota2/Heart_of_Tarrasque)
+### Satanic:
+Strength + 25, Damage + 45, Life Steal + 25%
+
+![read_me_pics/satanic.png](read_me_pics/satanic.png)
+
+(Source: https://liquipedia.net/dota2/Satanic)
