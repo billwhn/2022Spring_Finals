@@ -273,6 +273,22 @@ class Hero:
 
         :param qty_of_books: how many skill books -Armor Bonus- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Armor Bonus" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_armor_bonus(6)
+        >>> "Armor Bonus" in hero_object.skill_list.keys()
+        True
+        >>> hero_object.bonus_armor_without_agility
+        17
+        >>> hero_object.learn_skill_armor_bonus(2)
+        >>> hero_object.bonus_armor_without_agility
+        21
+        >>> hero_object.learn_skill_armor_bonus(13)
+        >>> hero_object.skill_list["Armor Bonus"]
+        10
+        >>> hero_object.learn_skill_armor_bonus(1)
+
         """
         if not self.check_able_to_learn_skill_book("Armor Bonus"):
             return None
@@ -280,7 +296,7 @@ class Hero:
         if original_level == 0:
             self.bonus_armor_without_agility += 5 + 2 * new_level
         else:
-            self.bonus_armor_without_agility += 2 * new_level
+            self.bonus_armor_without_agility += 2 * (new_level - original_level)
 
     def learn_skill_thorn_armor(self, qty_of_books: int) -> None:
         """
