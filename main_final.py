@@ -413,6 +413,21 @@ class Hero:
 
         :param qty_of_books: how many skill books -Crushing- are consumed
         :return: None
+        >>> hero_object = Hero(10)
+        >>> "Crushing" in hero_object.skill_list.keys()
+        False
+        >>> hero_object.learn_skill_crushing(6)
+        >>> hero_object.skill_list["Crushing"]
+        6
+        >>> hero_object.attack_attachment["Crushing"]
+        6
+        >>> hero_object.learn_skill_crushing(13)
+        >>> hero_object.skill_list["Crushing"]
+        10
+        >>> hero_object.attack_attachment["Crushing"]
+        10
+        >>> hero_object.learn_skill_crushing(1)
+
         """
         if not self.check_able_to_learn_skill_book("Crushing"):
             return None
