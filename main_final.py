@@ -46,7 +46,7 @@ class Hero:
     hero_level: int  # hero's level, between 1 ~ 30
     life_steal_rate: int  # the life steal rate the hero has for each attack
     pierce: dict  # the possibility of ignoring evasion
-    ultimate_skill: bool  # if the hero has learned ultimate skill or not
+    ultimate_skill: str  # if the hero has learned ultimate skill or not
 
     status: dict  # records hero's various real-time attributes like current HP
 
@@ -74,7 +74,7 @@ class Hero:
         self.hero_level = hero_level
         self.life_steal_rate = 0
         self.pierce = {}
-        self.ultimate_skill = False
+        self.ultimate_skill = ''
 
     def set_name(self, name: str) -> None:
         """
@@ -938,7 +938,7 @@ class Hero:
         self.main_skill_list["Coup de Grace"] = skill_level
         # critical_list: dict  # key: skill name, value: list, [possibility, critical rate]
         self.critical_list["Coup de Grace"] = [15, 75 + 125 * skill_level]
-        self.ultimate_skill = True
+        self.ultimate_skill = "Coup de Grace"
         return None
 
     def learn_main_skill_grow(self):
@@ -970,7 +970,7 @@ class Hero:
         self.bonus_armor_without_agility += 6 + 6 * skill_level
         self.bonus_damage_without_main_attribute += 40 * skill_level - 10
         self.bonus_attack_speed_without_agility -= 10 + 10 * skill_level
-        self.ultimate_skill = True
+        self.ultimate_skill = "Grow"
         return None
 
     def roll_main_skill(self, amount_of_main_skill: int, learn_ultimate_or_not=False) -> None:
@@ -1652,6 +1652,7 @@ def aggregate_analyze(loop_times: int, hero_level: int,
     total_occurance_main_skill = {}
     total_occurance_only = {}
     total_occurance_main_skill_only = {}
+    sub_winning_rate_dict = {}
 
     for i in range(0, loop_times):
         hero_1 = hero_initialize(hero_1_model, hero_level, hero_1_name)
@@ -1705,14 +1706,42 @@ def aggregate_analyze(loop_times: int, hero_level: int,
         # winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
 
         total_occurance_only = update_only_dict(total_occurance_only, hero_1.skill_list, hero_2.skill_list)
+
         total_occurance_only = update_only_dict(total_occurance_only, hero_2.skill_list, hero_1.skill_list)
+
+        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_1.main_skill_list)
+
+        total_occurance_main_skill = update_dict(total_occurance_main_skill, hero_2.main_skill_list)
 
         total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
                                                            hero_1.main_skill_list, hero_2.main_skill_list)
+
         total_occurance_main_skill_only = update_only_dict(total_occurance_main_skill_only,
                                                            hero_2.main_skill_list, hero_1.main_skill_list)
 
+        def update_dict_by_list(dict_to_update, source_list):
+            for skill_name in source_list:
+                if skill_name in dict_to_update.keys():
+                    dict_to_update[skill_name] += 1
+                else:
+                    dict_to_update[skill_name] = 1
+            return dict_to_update
+
+        winning_count = update_dict_by_list(winning_count, skill_list)
+
+        def update_dict_by_list_only(dict_to_update, source_list, rival_list):
+            for skill_name in source_list:
+                if skill_name not in rival_list:
+                    if skill_name in dict_to_update.keys():
+                        dict_to_update[skill_name] += 1
+                    else:
+                        dict_to_update[skill_name] = 1
+            return dict_to_update
+
         winning_count_only = update_dict_by_list_only(winning_count_only, skill_list, skill_list2)
+
+        winning_count_main_skill = update_dict_by_list(winning_count_main_skill, main_skill_list)
+
         winning_count_main_skill_only = update_dict_by_list_only(winning_count_main_skill_only,
                                                                  main_skill_list, main_skill_list2)
 
