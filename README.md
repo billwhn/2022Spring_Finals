@@ -31,7 +31,7 @@ There are various items in the game, which makes it impossible to simulate. Thus
 
 ## Basic Assumptions
 ![read_me_pics/assumptions.png](read_me_pics/assumptions.png)
-![read_me_pics/phases.png](read_me_pics/phases.png)
+![read_me_pics/game_phases.png](read_me_pics/game_phases.png)
 ## Variables
 ### Fixed Variables
 Hero models & items ---
