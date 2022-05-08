@@ -65,15 +65,25 @@ Reduces Magical damage the hero takes.
 All the heroes have a 25% basic Magic Resistance. Since the item system is limited, there is no way to improve magic resistance in this model.
 
 (Source: https://liquipedia.net/dota2/Magic_Resistance)
-##  Strength & Agility
+### Strength & Agility
 Strength increases maximum health and health regeneration while Agility increases armor and attack speed. If Strength or Agility is the main attribute (primary attribute), it will also increase damage.
 
 Each Strength gives: +20 Health (Hit Points), +0.1 Health Regeneration
 
 Each Agility gives: +0.16 Armor, +1 Attack Speed
-## Attack Speed
+### Attack Speed
 Attack Interval = Base Attack Time ÷ (1 + (Increased Attack Speed ÷ 100))
 
 (Source: https://liquipedia.net/dota2/Attack_Speed)
+### Damage Type
+Physical Damage: Will be compromised by Physical Resistance, related to Armor.
+
+Magic Damage: WIll be compromised by Magic Resistance
+
+True Damage: Will not be compromised by anything.
 ## Illustration for sub-Skills
 Sub-skills are the skills gained by consuming Skill Books. These skills are defined by the RPG game, not Dota2 itself.
+## Main SKills
+Main Skills are set by Dota2.
+## Hero Models
+### Monkey King
