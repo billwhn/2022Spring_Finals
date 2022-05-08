@@ -17,3 +17,12 @@ if __name__ == "__main__":
 
     main_final.creat_plot(noMKB_result, MKB_result, "Without MKB", "With MKB")
     main_final.creat_plot(noMKB_result, level6_result, "Level 15", "Level 6")
+
+    item_dict_2 = {}
+    level6_result = main_final.aggregate_analyze(5000, 6, "BountyHunter", "BountyHunter",
+                                                 "Bounty Hunter 1st", "Hunter Bounty 2nd", 20, 1, False, item_dict_2,
+                                                 True, False, False, False, False)
+
+    level15_result = main_final.aggregate_analyze(5000, 15, "BountyHunter", "BountyHunter",
+                                                  "Bounty Hunter 1st", "Hunter Bounty 2nd", 60, 1, False, item_dict_2,
+                                                  True, False, False, False, False)
